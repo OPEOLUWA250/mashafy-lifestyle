@@ -198,7 +198,8 @@ export const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* Community CTA */}
+      {/* Community CTA - Hidden for now */}
+      {/*
       <section className="py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-primary-600 to-primary-700">
         <div className="max-w-4xl mx-auto text-center text-white">
           <h2 className="text-4xl font-bold mb-4">Join the Muse Community</h2>
@@ -216,6 +217,7 @@ export const Home: React.FC = () => {
           </button>
         </div>
       </section>
+      */}
 
       <Footer />
     </div>
