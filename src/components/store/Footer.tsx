@@ -18,7 +18,7 @@ export const Footer: React.FC = () => {
           {/* Brand */}
           <div className="text-center md:text-left">
             <h3 className="text-sm font-light tracking-widest text-white mb-4">
-              TABITHA BOOKS
+              MASHAFY
             </h3>
             <p className="text-xs font-light text-gray-400 mb-6 leading-relaxed">
               Curated books that inspire, transform, and empower readers on
@@ -131,9 +131,7 @@ export const Footer: React.FC = () => {
               </li>
               <li className="flex md:flex-row justify-center md:justify-start items-center space-x-2 text-gray-400 hover:text-primary-500 transition">
                 <Mail className="w-3 h-3" />
-                <a href="mailto:hello@tabithabooks.com">
-                  hello@tabithabooks.com
-                </a>
+                <a href="mailto:hello@mashafy.com">hello@mashafy.com</a>
               </li>
               <li className="flex md:flex-row justify-center md:justify-start items-start space-x-2 text-gray-400">
                 <MapPin className="w-3 h-3 mt-1 flex-shrink-0" />
@@ -146,7 +144,7 @@ export const Footer: React.FC = () => {
         {/* Divider */}
         <div className="border-t border-gray-800 pt-8">
           <div className="flex flex-col md:flex-row justify-center md:justify-between items-center text-center md:text-left text-xs font-light text-gray-500">
-            <p>&copy; 2026 Tabitha Books. All rights reserved.</p>
+            <p>&copy; 2026 Mashafy. All rights reserved.</p>
             <p>
               Made with 💖 by{" "}
               <a

@@ -292,7 +292,7 @@ export const Cart: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setShowCheckoutForm(false)}
-                    className="w-full py-3 bg-white border-2 border-gray-300 text-black font-semibold rounded-lg hover:bg-gray-50 transition"
+                    className="w-full py-3 bg-white border-2 border-gray-300 text-black font-semibold rounded-lg hover:bg-gray-800 hover:text-white transition"
                   >
                     Cancel
                   </button>

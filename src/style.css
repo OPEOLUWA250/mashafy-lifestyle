@@ -27,7 +27,7 @@ body {
   color: #1a1a1a;
   line-height: 1.8;
   letter-spacing: 0.3px;
-  border-top: 2px solid #ff5b00;
+  border-top: 2px solid #a082ff;
 }
 
 .line-clamp-2 {
@@ -60,13 +60,13 @@ button {
 }
 
 button:hover {
-  background-color: #ff5b00;
+  background-color: #a082ff;
   color: #ffffff;
-  border-color: #ff5b00;
+  border-color: #a082ff;
 }
 
 a {
-  color: #ff5b00;
+  color: #a082ff;
   text-decoration: none;
   transition: all 0.3s ease;
   border-bottom: 1px solid transparent;
@@ -74,7 +74,7 @@ a {
 }
 
 a:hover {
-  border-bottom: 1px solid #ff5b00;
+  border-bottom: 1px solid #a082ff;
   opacity: 0.9;
 }
 
@@ -90,7 +90,7 @@ a:hover {
 footer {
   background-color: #000000;
   color: #ffffff;
-  border-top: 2px solid #ff5b00;
+  border-top: 2px solid #a082ff;
 }
 
 footer a {
@@ -98,8 +98,8 @@ footer a {
 }
 
 footer a:hover {
-  color: #ff5b00;
-  border-bottom-color: #ff5b00;
+  color: #a082ff;
+  border-bottom-color: #a082ff;
 }
 
 @media (prefers-color-scheme: light) {
@@ -201,7 +201,7 @@ footer a:hover {
   left: 0;
   width: 100%;
   height: 1px;
-  background-color: #ff5b00;
+  background-color: #a082ff;
   opacity: 0;
   transform: scaleX(0);
   transform-origin: left;

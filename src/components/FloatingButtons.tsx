@@ -38,9 +38,9 @@ export const FloatingButtons: React.FC = () => {
       {showBackToTop && (
         <button
           onClick={handleBackToTop}
-          className="flex items-center justify-center w-10 h-10 text-white hover:opacity-80 transition"
+          className="flex items-center justify-center w-10 h-10 text-white hover:opacity-80 transition rounded-full"
           aria-label="Back to top"
-          style={{ backgroundColor: "#FF5B00" }}
+          style={{ backgroundColor: "#a082ff" }}
         >
           <FontAwesomeIcon
             icon={faArrowUp}
@@ -53,7 +53,7 @@ export const FloatingButtons: React.FC = () => {
       {showBackToTop && (
         <button
           onClick={handleWhatsApp}
-          className="flex items-center justify-center w-10 h-10 bg-green-500 text-white hover:bg-green-600 transition"
+          className="flex items-center justify-center w-10 h-10 bg-green-500 text-white hover:bg-green-600 transition rounded-full"
           aria-label="Contact via WhatsApp"
         >
           <FontAwesomeIcon icon={faWhatsapp} />
