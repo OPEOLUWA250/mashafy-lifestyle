@@ -10,6 +10,12 @@ import { openWhatsAppCheckout } from "../../utils/whatsapp";
 
 export const Cart: React.FC = () => {
   const [isCheckingOut, setIsCheckingOut] = useState(false);
+  const [showCheckoutForm, setShowCheckoutForm] = useState(false);
+  const [customerDetails, setCustomerDetails] = useState({
+    name: "",
+    phone: "",
+    address: "",
+  });
   const items = useCartStore((state) => state.items);
   const removeItem = useCartStore((state) => state.removeItem);
   const updateQuantity = useCartStore((state) => state.updateQuantity);
@@ -19,13 +25,38 @@ export const Cart: React.FC = () => {
   const totalPrice = getTotalPrice();
   const finalTotal = totalPrice;
 
-  const handleWhatsAppCheckout = () => {
+  const handleCheckoutClick = () => {
+    setShowCheckoutForm(true);
+  };
+
+  const handleFormSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (
+      !customerDetails.name ||
+      !customerDetails.phone ||
+      !customerDetails.address
+    ) {
+      alert("Please fill in all fields");
+      return;
+    }
     setIsCheckingOut(true);
-    openWhatsAppCheckout(items, finalTotal);
+    openWhatsAppCheckout(items, finalTotal, customerDetails);
     setTimeout(() => {
       clearCart();
+      setCustomerDetails({ name: "", phone: "", address: "" });
+      setShowCheckoutForm(false);
       setIsCheckingOut(false);
     }, 1000);
+  };
+
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
+    const { name, value } = e.target;
+    setCustomerDetails((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
   return (
@@ -33,15 +64,15 @@ export const Cart: React.FC = () => {
       <Navbar />
 
       {/* Header */}
-      <section className="pt-32 pb-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-beige-50 to-white">
-        <div className="max-w-7xl mx-auto">
+      <section className="bg-gradient-to-br from-beige-50 to-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-12">
           <h1 className="text-5xl font-bold text-gray-900">Shopping Cart</h1>
         </div>
       </section>
 
       {/* Cart Content */}
-      <section className="flex-grow py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
+      <section className="flex-grow">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           {items.length === 0 ? (
             <div className="text-center py-20">
               <h2 className="text-2xl font-bold text-gray-900 mb-4">
@@ -167,7 +198,7 @@ export const Cart: React.FC = () => {
                   </div>
 
                   <button
-                    onClick={handleWhatsAppCheckout}
+                    onClick={handleCheckoutClick}
                     disabled={isCheckingOut}
                     className="w-full py-3 bg-primary-600 text-white font-bold rounded-lg hover:bg-primary-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                   >
@@ -191,6 +222,86 @@ export const Cart: React.FC = () => {
       </section>
 
       <Footer />
+
+      {/* Checkout Form Modal */}
+      {showCheckoutForm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full">
+            <div className="p-6">
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">
+                Delivery Details
+              </h2>
+              <form onSubmit={handleFormSubmit} className="space-y-4">
+                {/* Name */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Full Name
+                  </label>
+                  <input
+                    type="text"
+                    name="name"
+                    value={customerDetails.name}
+                    onChange={handleInputChange}
+                    placeholder="John Doe"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary-600 focus:ring-1 focus:ring-primary-600"
+                    required
+                  />
+                </div>
+
+                {/* Phone Number */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Phone Number
+                  </label>
+                  <input
+                    type="tel"
+                    name="phone"
+                    value={customerDetails.phone}
+                    onChange={handleInputChange}
+                    placeholder="08012345678"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary-600 focus:ring-1 focus:ring-primary-600"
+                    required
+                  />
+                </div>
+
+                {/* Address */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Delivery Address
+                  </label>
+                  <textarea
+                    name="address"
+                    value={customerDetails.address}
+                    onChange={handleInputChange}
+                    placeholder="123 Main Street, Lagos"
+                    rows={3}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary-600 focus:ring-1 focus:ring-primary-600 resize-none"
+                    required
+                  />
+                </div>
+
+                {/* Buttons */}
+                <div className="flex flex-col gap-3 pt-6">
+                  <button
+                    type="submit"
+                    className="w-full py-3 bg-primary-600 text-white font-semibold rounded-lg hover:bg-primary-700 transition flex items-center justify-center gap-2"
+                  >
+                    <FontAwesomeIcon icon={faWhatsapp} />
+                    Proceed to WhatsApp
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowCheckoutForm(false)}
+                    className="w-full py-3 bg-white border-2 border-gray-300 text-black font-semibold rounded-lg hover:bg-gray-50 transition"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
