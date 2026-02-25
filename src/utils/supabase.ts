@@ -313,7 +313,9 @@ export const getProducts = async () => {
     console.log("Fetching products from Supabase...");
     const { data, error } = await supabase
       .from("products")
-      .select("id, name, price, category, stock, image_url, created_at")
+      .select(
+        "id, name, description, price, category, stock, image_url, created_at",
+      )
       .order("created_at", { ascending: false })
       .limit(50); // Limit to 50 products for faster loading
 
