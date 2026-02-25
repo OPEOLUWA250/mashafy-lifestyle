@@ -15,8 +15,13 @@ export const Home: React.FC = () => {
     const fetchProducts = async () => {
       setLoading(true);
       try {
-        const { data } = await getProducts();
+        const { data, error } = await getProducts();
+        if (error) {
+          console.error("❌ Failed to fetch products:", error);
+          return;
+        }
         if (data && Array.isArray(data) && data.length > 0) {
+          console.log(`✓ Loaded ${data.length} products successfully`);
           const mapped = data.map((p: any) => ({
             id: p.id,
             name: p.name,
@@ -30,9 +35,11 @@ export const Home: React.FC = () => {
             featured: true,
           }));
           setProducts(mapped);
+        } else {
+          console.warn("⚠️ No products returned from database");
         }
       } catch (error) {
-        console.error("Error fetching products:", error);
+        console.error("❌ Error fetching products:", error);
       } finally {
         setLoading(false);
       }

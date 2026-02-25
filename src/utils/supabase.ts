@@ -302,45 +302,47 @@ export const getProducts = async () => {
       return { data: MOCK_PRODUCTS, error: null };
     }
 
-    if (!supabase) return { data: MOCK_PRODUCTS, error: null };
+    if (!supabase) {
+      console.warn("⚠️ Supabase client not initialized");
+      return { data: MOCK_PRODUCTS, error: "Supabase not initialized" };
+    }
 
     // Check memory cache first
     if (cachedProducts && Date.now() < cacheTtl) {
-      console.log("Using cached products from memory");
+      console.log("✓ Using cached products from memory");
       return { data: cachedProducts, error: null };
     }
 
-    console.log("Fetching products from Supabase...");
+    console.log("🔄 Fetching products from Supabase...");
     const { data, error } = await supabase
       .from("products")
-      .select(
-        "id, name, description, price, category, stock, image_url, created_at",
-      )
+      .select("id, name, price, category, stock, image_url, created_at")
       .order("created_at", { ascending: false })
       .limit(50); // Limit to 50 products for faster loading
 
     if (error) {
-      console.error("Supabase error:", error);
-      // Return mock products as fallback
-      return { data: MOCK_PRODUCTS, error: null };
+      console.error("❌ Supabase error:", error);
+      return { data: null, error: error.message };
     }
 
-    if (!data || data.length === 0) {
-      console.log("No products from Supabase, using mock products");
-      return { data: MOCK_PRODUCTS, error: null };
+    if (!data) {
+      console.warn("⚠️ No data returned from Supabase");
+      return { data: [], error: "No data returned" };
     }
 
-    // Update caches
+    // Update caches even if empty - this indicates database is empty, not an error
     cachedProducts = data;
     cacheTtl = Date.now() + CACHE_DURATION;
     saveCacheToStorage(data);
 
-    console.log("Successfully fetched", data.length, "products from Supabase");
+    console.log(`✓ Successfully fetched ${data.length} products from Supabase`);
     return { data, error: null };
   } catch (error) {
-    console.error("Error fetching products:", error);
-    // Fall back to mock products on any error
-    return { data: MOCK_PRODUCTS, error: null };
+    console.error("❌ Error fetching products:", error);
+    return {
+      data: null,
+      error: error instanceof Error ? error.message : String(error),
+    };
   }
 };
 
