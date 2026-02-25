@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Navbar } from "../../components/store/Navbar";
-import { Link } from "react-router-dom";
-import { Plus, Edit, Trash2, Search } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { Plus, Edit, Trash2, Search, LogOut } from "lucide-react";
+import { useAuthStore } from "../../store/authStore";
+import { useSessionTimeout } from "../../hooks/useSessionTimeout";
 import {
   getProducts,
   deleteProduct,
@@ -23,20 +25,17 @@ export const AdminDashboard: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [deleting, setDeleting] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const navigate = useNavigate();
+  const logout = useAuthStore((state) => state.logout);
+
+  // Enable session timeout tracking
+  useSessionTimeout();
 
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        console.log("Fetching products...");
         setError(null);
         const { data: productsData, error: fetchError } = await getProducts();
-
-        console.log(
-          "Products fetched:",
-          productsData?.length || 0,
-          "Error:",
-          fetchError,
-        );
 
         if (fetchError) {
           console.error("Fetch error:", fetchError);
@@ -52,7 +51,6 @@ export const AdminDashboard: React.FC = () => {
         if (productsData && Array.isArray(productsData)) {
           setProducts(productsData as ProductData[]);
         } else {
-          console.warn("No products data returned");
           setProducts([]);
         }
       } catch (error) {
@@ -96,6 +94,11 @@ export const AdminDashboard: React.FC = () => {
         setDeleting(null);
       }
     }
+  };
+
+  const handleLogout = () => {
+    logout();
+    navigate("/admin/login");
   };
 
   const filteredProducts = products.filter((p) =>
@@ -145,13 +148,22 @@ export const AdminDashboard: React.FC = () => {
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900">
               Dashboard
             </h1>
-            <Link
-              to="/admin/products/new"
-              className="w-full sm:w-auto inline-flex items-center justify-center px-6 sm:px-8 py-3 bg-primary-600 text-white font-semibold rounded-lg hover:bg-primary-700 transition shadow-lg text-sm sm:text-base"
-            >
-              <Plus className="w-5 h-5 mr-2" />
-              Add Product
-            </Link>
+            <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+              <Link
+                to="/admin/products/new"
+                className="w-full sm:w-auto inline-flex items-center justify-center px-6 sm:px-8 py-3 bg-primary-600 text-white font-semibold rounded-lg hover:bg-primary-700 transition shadow-lg text-sm sm:text-base"
+              >
+                <Plus className="w-5 h-5 mr-2" />
+                Add Product
+              </Link>
+              <button
+                onClick={handleLogout}
+                className="w-full sm:w-auto inline-flex items-center justify-center px-6 sm:px-8 py-3 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition shadow-lg text-sm sm:text-base"
+              >
+                <LogOut className="w-5 h-5 mr-2" />
+                Logout
+              </button>
+            </div>
           </div>
 
           {/* Products Section */}

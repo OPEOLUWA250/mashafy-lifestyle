@@ -153,8 +153,11 @@ npm run preview  # Preview production build
 
 ### Admin Routes
 
-- `/admin` - Dashboard
-- `/admin/products` - Product management
+- `/admin/login` - Admin login page
+- `/admin` - Dashboard (protected)
+- `/admin/products` - Product management (protected)
+- `/admin/products/new` - Add new product (protected)
+- `/admin/products/:id/edit` - Edit product (protected)
 
 ## 🎯 Key Features
 
@@ -176,10 +179,12 @@ npm run preview  # Preview production build
 
 ### Admin Features
 
-- Product inventory management
-- Search and filter products
-- Add, edit, and delete products
-- Mobile-responsive dashboard
+- **Secure Authentication**: Email and password login with session management
+- **Rate Limiting**: Account lockout after 5 failed login attempts
+- **Session Timeout**: Auto-logout after 30 minutes of inactivity
+- **Protected Routes**: All admin pages require authentication
+- **Product Inventory Management**: Search, filter, add, edit, and delete products
+- **Mobile-responsive Dashboard**: Fully optimized for all devices
 
 ## 📱 Responsive Design
 
@@ -216,13 +221,34 @@ npm run preview  # Preview production build
 - Environment variable support ready
 - Input validation
 - XSS protection with React
+- **Admin Authentication**: Secure login with email/password
+- **Rate Limiting**: Prevent brute force attacks (5 attempts, 15-min lockout)
+- **Session Management**: Activity tracking and 30-minute inactivity timeout
+- **Protected Routes**: All admin functionality requires valid session
+
+## 🔑 Admin Authentication Setup
+
+1. Copy `.env.example` to `.env.local`
+2. Set your admin credentials:
+   ```env
+   VITE_ADMIN_EMAIL=admin@mashafy.com
+   VITE_ADMIN_PASSWORD=your_secure_password
+   ```
+3. Access admin dashboard at `/admin/login`
+
+### Security Features
+
+- ✅ Account lockout after 5 failed login attempts (15-minute lockout)
+- ✅ Automatic logout after 30 minutes of inactivity
+- ✅ Session validation on protected routes
+- ✅ Activity tracking to prevent timeout during active use
 
 ## 📝 Notes
 
-- Products are currently using placeholder data
-- Admin authentication not yet implemented
+- Products are currently using Supabase database
+- Admin authentication is implemented with session management
 - Payment gateway integration ready for backend
-- API integration points prepared
+- API integration points prepared for Supabase extensions
 
 ## 🤝 Contributing
 

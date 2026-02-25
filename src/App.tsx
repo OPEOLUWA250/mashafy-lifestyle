@@ -18,22 +18,19 @@ import { AdminDashboard } from "./pages/admin/Dashboard";
 import { AdminProducts } from "./pages/admin/Products";
 import { AddProduct } from "./pages/admin/AddProduct";
 import { EditProduct } from "./pages/admin/EditProduct";
+import { AdminLogin } from "./pages/admin/Login";
 
 // Components
 import { FloatingButtons } from "./components/FloatingButtons";
+import { ProtectedRoute } from "./components/ProtectedRoute";
 import { getProducts } from "./utils/supabase";
 
 function App() {
   useEffect(() => {
     // Preload products on app startup
-    console.log("App started - preloading products...");
-    getProducts()
-      .then(() => {
-        console.log("Products preloaded successfully");
-      })
-      .catch((err) => {
-        console.error("Failed to preload products:", err);
-      });
+    getProducts().catch((err) => {
+      console.error("Failed to preload products:", err);
+    });
   }, []);
 
   return (
@@ -48,10 +45,39 @@ function App() {
         <Route path="/contact" element={<Contact />} />
 
         {/* Admin Routes */}
-        <Route path="/admin" element={<AdminDashboard />} />
-        <Route path="/admin/products" element={<AdminProducts />} />
-        <Route path="/admin/products/new" element={<AddProduct />} />
-        <Route path="/admin/products/:id/edit" element={<EditProduct />} />
+        <Route path="/admin/login" element={<AdminLogin />} />
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute>
+              <AdminDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/products"
+          element={
+            <ProtectedRoute>
+              <AdminProducts />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/products/new"
+          element={
+            <ProtectedRoute>
+              <AddProduct />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/products/:id/edit"
+          element={
+            <ProtectedRoute>
+              <EditProduct />
+            </ProtectedRoute>
+          }
+        />
 
         {/* Catch-all */}
         <Route path="*" element={<Navigate to="/" replace />} />
