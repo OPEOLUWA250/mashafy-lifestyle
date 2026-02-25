@@ -1,5 +1,5 @@
 export const BRAND_CONFIG = {
-  name: "Tabitha Books",
+  name: "Mashafy",
   tagline: "Curate one",
   primaryColor: "#a082ff",
   accentColor: "#FEE4BA",

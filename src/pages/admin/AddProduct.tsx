@@ -116,7 +116,7 @@ export const AddProduct: React.FC = () => {
             </h1>
             <div className="w-12 h-1 bg-primary-500 mb-6"></div>
             <p className="text-xs font-light text-gray-600 tracking-wide">
-              Create a new product for your Tabitha Books store
+              Create a new product for your Mashafy store
             </p>
           </div>
 

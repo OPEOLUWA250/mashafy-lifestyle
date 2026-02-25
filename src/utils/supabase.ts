@@ -18,7 +18,7 @@ const CACHE_DURATION = 60 * 60 * 1000; // 1 hour (increased from 5 minutes)
 // Load cache from localStorage on startup
 const loadCacheFromStorage = () => {
   try {
-    const stored = localStorage.getItem("tabitha_products_cache");
+    const stored = localStorage.getItem("mashafy_products_cache");
     if (stored) {
       const { data, ttl } = JSON.parse(stored);
       if (Date.now() < ttl) {
@@ -38,7 +38,7 @@ const loadCacheFromStorage = () => {
 const saveCacheToStorage = (data: any[]) => {
   try {
     localStorage.setItem(
-      "tabitha_products_cache",
+      "mashafy_products_cache",
       JSON.stringify({
         data,
         ttl: cacheTtl,
@@ -354,7 +354,7 @@ export const clearProductCache = () => {
   cachedProducts = null;
   cacheTtl = 0;
   try {
-    localStorage.removeItem("tabitha_products_cache");
+    localStorage.removeItem("mashafy_products_cache");
   } catch (e) {
     console.warn("Failed to clear localStorage cache");
   }
