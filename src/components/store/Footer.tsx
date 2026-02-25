@@ -11,49 +11,51 @@ import { Link } from "react-router-dom";
 
 export const Footer: React.FC = () => {
   return (
-    <footer className="bg-gray-900 text-white mt-16">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <footer className="bg-black border-t-2 border-primary-500">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
         {/* Main Footer Content */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
           {/* Brand */}
-          <div>
-            <h3 className="text-2xl font-bold mb-2">
-              ⚡ <span className="text-primary-400">Mashafy</span>
+          <div className="text-center md:text-left">
+            <h3 className="text-sm font-light tracking-widest text-white mb-4">
+              TABITHA BOOKS
             </h3>
-            <p className="text-gray-400 text-sm mb-4">
-              Premium lifestyle brand for visionaries who live with intention,
-              faith, and courage.
+            <p className="text-xs font-light text-gray-400 mb-6 leading-relaxed">
+              Curated books that inspire, transform, and empower readers on
+              their journey.
             </p>
-            <div className="flex space-x-4">
+            <div className="flex justify-center md:justify-start space-x-4">
               <a
                 href="#"
-                className="text-gray-400 hover:text-primary-400 transition"
+                className="w-4 h-4 text-gray-500 hover:text-primary-500 transition"
               >
-                <Facebook className="w-5 h-5" />
+                <Facebook className="w-full h-full" />
               </a>
               <a
                 href="#"
-                className="text-gray-400 hover:text-primary-400 transition"
+                className="w-4 h-4 text-gray-500 hover:text-primary-500 transition"
               >
-                <Instagram className="w-5 h-5" />
+                <Instagram className="w-full h-full" />
               </a>
               <a
                 href="#"
-                className="text-gray-400 hover:text-primary-400 transition"
+                className="w-4 h-4 text-gray-500 hover:text-primary-500 transition"
               >
-                <Twitter className="w-5 h-5" />
+                <Twitter className="w-full h-full" />
               </a>
             </div>
           </div>
 
-          {/* Quick Links */}
-          <div>
-            <h4 className="text-lg font-semibold mb-4">Shop</h4>
-            <ul className="space-y-2 text-gray-400 text-sm">
+          {/* Shop */}
+          <div className="text-center md:text-left">
+            <h4 className="text-xs font-light tracking-widest text-white mb-4 uppercase">
+              Shop
+            </h4>
+            <ul className="space-y-2 text-xs font-light text-gray-400">
               <li>
                 <Link
                   to="/shop?category=tees"
-                  className="hover:text-primary-400 transition"
+                  className="hover:text-primary-500 transition"
                 >
                   Tees
                 </Link>
@@ -61,7 +63,7 @@ export const Footer: React.FC = () => {
               <li>
                 <Link
                   to="/shop?category=journals"
-                  className="hover:text-primary-400 transition"
+                  className="hover:text-primary-500 transition"
                 >
                   Journals
                 </Link>
@@ -69,13 +71,13 @@ export const Footer: React.FC = () => {
               <li>
                 <Link
                   to="/shop?featured=true"
-                  className="hover:text-primary-400 transition"
+                  className="hover:text-primary-500 transition"
                 >
                   Featured
                 </Link>
               </li>
               <li>
-                <Link to="/shop" className="hover:text-primary-400 transition">
+                <Link to="/shop" className="hover:text-primary-500 transition">
                   All Products
                 </Link>
               </li>
@@ -83,52 +85,58 @@ export const Footer: React.FC = () => {
           </div>
 
           {/* Company */}
-          <div>
-            <h4 className="text-lg font-semibold mb-4">Company</h4>
-            <ul className="space-y-2 text-gray-400 text-sm">
+          <div className="text-center md:text-left">
+            <h4 className="text-xs font-light tracking-widest text-white mb-4 uppercase">
+              Company
+            </h4>
+            <ul className="space-y-2 text-xs font-light text-gray-400">
               <li>
-                <Link to="/about" className="hover:text-primary-400 transition">
+                <Link to="/about" className="hover:text-primary-500 transition">
                   About Us
                 </Link>
               </li>
               <li>
                 <Link
                   to="/contact"
-                  className="hover:text-primary-400 transition"
+                  className="hover:text-primary-500 transition"
                 >
                   Contact
                 </Link>
               </li>
               <li>
-                <Link to="/faq" className="hover:text-primary-400 transition">
+                <Link to="/faq" className="hover:text-primary-500 transition">
                   FAQ
                 </Link>
               </li>
               <li>
                 <Link
                   to="/privacy"
-                  className="hover:text-primary-400 transition"
+                  className="hover:text-primary-500 transition"
                 >
-                  Privacy Policy
+                  Privacy
                 </Link>
               </li>
             </ul>
           </div>
 
           {/* Contact */}
-          <div>
-            <h4 className="text-lg font-semibold mb-4">Get in Touch</h4>
-            <ul className="space-y-3 text-sm">
-              <li className="flex items-center space-x-2 text-gray-400 hover:text-primary-400 transition">
-                <Phone className="w-4 h-4" />
+          <div className="text-center md:text-left">
+            <h4 className="text-xs font-light tracking-widest text-white mb-4 uppercase">
+              Contact
+            </h4>
+            <ul className="space-y-3 text-xs font-light">
+              <li className="flex md:flex-row justify-center md:justify-start items-center space-x-2 text-gray-400 hover:text-primary-500 transition">
+                <Phone className="w-3 h-3" />
                 <a href="tel:+2348180129670">+234 818 012 9670</a>
               </li>
-              <li className="flex items-center space-x-2 text-gray-400 hover:text-primary-400 transition">
-                <Mail className="w-4 h-4" />
-                <a href="mailto:hello@mashafy.com">hello@mashafy.com</a>
+              <li className="flex md:flex-row justify-center md:justify-start items-center space-x-2 text-gray-400 hover:text-primary-500 transition">
+                <Mail className="w-3 h-3" />
+                <a href="mailto:hello@tabithabooks.com">
+                  hello@tabithabooks.com
+                </a>
               </li>
-              <li className="flex items-start space-x-2 text-gray-400">
-                <MapPin className="w-4 h-4 mt-1 flex-shrink-0" />
+              <li className="flex md:flex-row justify-center md:justify-start items-start space-x-2 text-gray-400">
+                <MapPin className="w-3 h-3 mt-1 flex-shrink-0" />
                 <span>Lagos, Nigeria</span>
               </li>
             </ul>
@@ -137,15 +145,15 @@ export const Footer: React.FC = () => {
 
         {/* Divider */}
         <div className="border-t border-gray-800 pt-8">
-          <div className="flex flex-col md:flex-row justify-between items-center text-gray-400 text-sm">
-            <p>&copy; 2026 Mashafy Lifestyle. All rights reserved.</p>
+          <div className="flex flex-col md:flex-row justify-center md:justify-between items-center text-center md:text-left text-xs font-light text-gray-500">
+            <p>&copy; 2026 Tabitha Books. All rights reserved.</p>
             <p>
               Made with 💖 by{" "}
               <a
                 href="https://portfolio-website-tau-one-87.vercel.app/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hover:text-primary-400 transition"
+                className="hover:text-primary-500 transition"
               >
                 devopeoluwa
               </a>

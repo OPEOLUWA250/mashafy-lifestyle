@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import { ArrowUp } from "lucide-react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faArrowUp } from "@fortawesome/free-solid-svg-icons";
 import { faWhatsapp } from "@fortawesome/free-brands-svg-icons";
 
 export const FloatingButtons: React.FC = () => {
@@ -25,7 +25,7 @@ export const FloatingButtons: React.FC = () => {
   }
 
   const handleWhatsApp = () => {
-    window.open("https://wa.me/2348027842294", "_blank");
+    window.open("https://wa.me/2348180018752", "_blank");
   };
 
   const handleBackToTop = () => {
@@ -33,26 +33,32 @@ export const FloatingButtons: React.FC = () => {
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-40 flex flex-col gap-4">
+    <div className="fixed bottom-6 right-6 z-40 flex flex-col gap-3">
       {/* Back to Top Button */}
       {showBackToTop && (
         <button
           onClick={handleBackToTop}
-          className="flex items-center justify-center w-14 h-14 bg-gray-700 hover:bg-gray-800 text-white rounded-full shadow-lg transition-all duration-200 transform hover:scale-110"
+          className="flex items-center justify-center w-10 h-10 text-white hover:opacity-80 transition"
           aria-label="Back to top"
+          style={{ backgroundColor: "#FF5B00" }}
         >
-          <ArrowUp size={24} />
+          <FontAwesomeIcon
+            icon={faArrowUp}
+            style={{ color: "white", fontSize: "16px" }}
+          />
         </button>
       )}
 
       {/* WhatsApp Button */}
-      <button
-        onClick={handleWhatsApp}
-        className="flex items-center justify-center w-14 h-14 bg-green-500 hover:bg-green-600 text-white rounded-full shadow-lg transition-all duration-200 transform hover:scale-110"
-        aria-label="Contact via WhatsApp"
-      >
-        <FontAwesomeIcon icon={faWhatsapp} size="xl" />
-      </button>
+      {showBackToTop && (
+        <button
+          onClick={handleWhatsApp}
+          className="flex items-center justify-center w-10 h-10 bg-green-500 text-white hover:bg-green-600 transition"
+          aria-label="Contact via WhatsApp"
+        >
+          <FontAwesomeIcon icon={faWhatsapp} />
+        </button>
+      )}
     </div>
   );
 };

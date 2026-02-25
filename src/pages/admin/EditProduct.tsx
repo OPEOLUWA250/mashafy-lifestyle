@@ -139,17 +139,17 @@ export const EditProduct: React.FC = () => {
 
   if (fetching) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-white">
         <Navbar isAdmin={true} />
         <div className="pt-20 md:pt-32 pb-20 px-3 sm:px-4 md:px-6 lg:px-8 flex items-center justify-center">
-          <p className="text-gray-600 text-sm">Loading product...</p>
+          <p className="text-xs font-light text-gray-600">Loading product...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white">
       <Navbar isAdmin={true} />
 
       <div className="pt-20 md:pt-32 pb-20 px-3 sm:px-4 md:px-6 lg:px-8">
@@ -157,29 +157,30 @@ export const EditProduct: React.FC = () => {
           {/* Back Button */}
           <button
             onClick={() => navigate("/admin/products")}
-            className="inline-flex items-center text-primary-600 hover:text-primary-700 mb-6 transition text-sm"
+            className="inline-flex items-center text-primary-500 hover:text-primary-600 mb-12 text-xs font-light"
           >
-            <ArrowLeft className="w-4 h-4 mr-1.5" />
+            <ArrowLeft className="w-3 h-3 mr-1.5" />
             Back
           </button>
 
           {/* Form Card */}
-          <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-4 sm:p-6 md:p-8">
-            <h1 className="text-2xl sm:text-3xl md:text-3xl font-bold text-gray-900 mb-4 md:mb-8">
+          <div className="border border-gray-200 p-8 border-b-4 border-primary-500">
+            <h1 className="text-4xl font-light text-dark tracking-tight mb-2">
               Edit Product
             </h1>
+            <div className="w-12 h-1 bg-primary-500 mb-8"></div>
 
             {error && (
-              <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-red-50 border border-red-200 rounded-lg">
-                <p className="text-red-800 font-medium text-sm">{error}</p>
+              <div className="mb-8 p-4 border border-gray-200">
+                <p className="text-xs font-light text-dark">{error}</p>
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-8">
               {/* Product Name */}
               <div>
-                <label className="block text-xs sm:text-sm font-semibold text-gray-900 mb-1.5 sm:mb-2">
-                  Product Name <span className="text-red-600">*</span>
+                <label className="block text-xs font-light text-dark mb-2 uppercase tracking-widest">
+                  Product Name *
                 </label>
                 <input
                   type="text"
@@ -187,15 +188,15 @@ export const EditProduct: React.FC = () => {
                   value={formData.name}
                   onChange={handleChange}
                   placeholder="e.g., I Dare to Stand Out"
-                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-600 text-sm"
+                  className="w-full px-3 py-2 border border-gray-200 text-xs font-light focus:outline-none focus:border-primary-500"
                   required
                 />
               </div>
 
               {/* Description */}
               <div>
-                <label className="block text-xs sm:text-sm font-semibold text-gray-900 mb-1.5 sm:mb-2">
-                  Description <span className="text-red-600">*</span>
+                <label className="block text-xs font-light text-dark mb-2 uppercase tracking-widest">
+                  Description *
                 </label>
                 <textarea
                   name="description"
@@ -203,16 +204,16 @@ export const EditProduct: React.FC = () => {
                   onChange={handleChange}
                   placeholder="e.g., Unisex minimalist tee with universal appeal"
                   rows={3}
-                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-600 text-sm"
+                  className="w-full px-3 py-2 border border-gray-200 text-xs font-light focus:outline-none focus:border-primary-500"
                   required
                 />
               </div>
 
               {/* Price and Stock */}
-              <div className="grid grid-cols-2 gap-2 sm:gap-4">
+              <div className="grid grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-xs sm:text-sm font-semibold text-gray-900 mb-1.5 sm:mb-2">
-                    Price (₦) <span className="text-red-600">*</span>
+                  <label className="block text-xs font-light text-dark mb-2 uppercase tracking-widest">
+                    Price (₦) *
                   </label>
                   <input
                     type="number"
@@ -220,15 +221,15 @@ export const EditProduct: React.FC = () => {
                     value={formData.price}
                     onChange={handleChange}
                     placeholder="8500"
-                    className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-600 text-sm"
+                    className="w-full px-3 py-2 border border-gray-200 text-xs font-light focus:outline-none focus:border-primary-500"
                     required
                   />
                 </div>
 
                 {/* Stock */}
                 <div>
-                  <label className="block text-xs sm:text-sm font-semibold text-gray-900 mb-1.5 sm:mb-2">
-                    Stock <span className="text-red-600">*</span>
+                  <label className="block text-xs font-light text-dark mb-2 uppercase tracking-widest">
+                    Stock *
                   </label>
                   <input
                     type="number"
@@ -236,7 +237,7 @@ export const EditProduct: React.FC = () => {
                     value={formData.stock}
                     onChange={handleChange}
                     placeholder="50"
-                    className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-600 text-sm"
+                    className="w-full px-3 py-2 border border-gray-200 text-xs font-light focus:outline-none focus:border-primary-500"
                     required
                   />
                 </div>
@@ -244,14 +245,14 @@ export const EditProduct: React.FC = () => {
 
               {/* Category */}
               <div>
-                <label className="block text-xs sm:text-sm font-semibold text-gray-900 mb-1.5 sm:mb-2">
+                <label className="block text-xs font-light text-dark mb-2 uppercase tracking-widest">
                   Category
                 </label>
                 <select
                   name="category"
                   value={formData.category}
                   onChange={handleChange}
-                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-600 text-sm"
+                  className="w-full px-3 py-2 border border-gray-200 text-xs font-light focus:outline-none focus:border-primary-500"
                 >
                   <option value="tees">Tees</option>
                   <option value="journals">Journals</option>
@@ -260,16 +261,14 @@ export const EditProduct: React.FC = () => {
 
               {/* Image Upload Section */}
               <div>
-                <label className="block text-xs sm:text-sm font-semibold text-gray-900 mb-1.5 sm:mb-4">
-                  Product Image <span className="text-red-600">*</span>
+                <label className="block text-xs font-light text-dark mb-3 uppercase tracking-widest">
+                  Product Image *
                 </label>
-                <label className="flex flex-col items-center justify-center w-full h-32 sm:h-40 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-primary-600 hover:bg-primary-50 transition">
-                  <div className="flex flex-col items-center justify-center pt-3 sm:pt-5 pb-3 sm:pb-6">
-                    <Upload className="w-6 sm:w-8 h-6 sm:h-8 text-gray-400 mb-1 sm:mb-2" />
-                    <p className="text-xs sm:text-sm text-gray-900 font-medium text-center px-2">
-                      Click to upload
-                    </p>
-                    <p className="text-xs text-gray-600 text-center px-2">
+                <label className="flex flex-col items-center justify-center w-full px-4 py-8 border border-gray-200 cursor-pointer hover:bg-gray-50 transition">
+                  <div className="flex flex-col items-center justify-center">
+                    <Upload className="w-5 h-5 text-gray-400 mb-2" />
+                    <p className="text-xs text-gray-600">Click to upload</p>
+                    <p className="text-xs font-light text-gray-500 mt-1">
                       PNG, JPG up to 5MB
                     </p>
                   </div>
@@ -283,32 +282,32 @@ export const EditProduct: React.FC = () => {
 
                 {/* Image Preview */}
                 {formData.image_url && (
-                  <div className="mt-3 sm:mt-4">
-                    <p className="text-xs font-semibold text-gray-700 mb-2">
+                  <div className="mt-4">
+                    <p className="text-xs font-light text-gray-600 mb-3 uppercase tracking-widest">
                       Preview
                     </p>
                     <img
                       src={formData.image_url}
                       alt="Preview"
-                      className="w-24 h-24 sm:w-40 sm:h-40 object-cover rounded-lg border border-gray-200"
+                      className="w-24 h-24 object-cover border border-gray-200"
                     />
                   </div>
                 )}
               </div>
 
               {/* Buttons */}
-              <div className="flex gap-2 sm:gap-4 pt-4 sm:pt-6 border-t border-gray-200">
+              <div className="flex gap-4 pt-8 border-t border-gray-200">
                 <button
                   type="button"
                   onClick={() => navigate("/admin/products")}
-                  className="flex-1 px-3 sm:px-6 py-2.5 sm:py-3 bg-white border border-gray-300 text-gray-900 font-semibold rounded-lg hover:bg-gray-50 transition text-sm sm:text-base"
+                  className="flex-1 px-6 py-2 bg-primary-500 text-white font-light text-xs hover:bg-primary-600 transition uppercase tracking-widest"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={loading}
-                  className="flex-1 px-3 sm:px-6 py-2.5 sm:py-3 bg-primary-600 text-white font-semibold rounded-lg hover:bg-primary-700 transition disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
+                  className="flex-1 px-6 py-2 border border-gray-200 text-dark font-light text-xs hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-widest"
                 >
                   {loading ? "Updating..." : "Update"}
                 </button>

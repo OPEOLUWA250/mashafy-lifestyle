@@ -18,7 +18,7 @@ const CACHE_DURATION = 60 * 60 * 1000; // 1 hour (increased from 5 minutes)
 // Load cache from localStorage on startup
 const loadCacheFromStorage = () => {
   try {
-    const stored = localStorage.getItem("mashafy_products_cache");
+    const stored = localStorage.getItem("tabitha_products_cache");
     if (stored) {
       const { data, ttl } = JSON.parse(stored);
       if (Date.now() < ttl) {
@@ -38,7 +38,7 @@ const loadCacheFromStorage = () => {
 const saveCacheToStorage = (data: any[]) => {
   try {
     localStorage.setItem(
-      "mashafy_products_cache",
+      "tabitha_products_cache",
       JSON.stringify({
         data,
         ttl: cacheTtl,
@@ -58,7 +58,7 @@ export interface CartItem {
   name: string;
   price: number;
   quantity: number;
-  category: "tees" | "journals";
+  category: "leadership" | "fiction" | "lifestyle";
   selectedSize?: string;
   selectedColor?: string;
 }
@@ -91,7 +91,7 @@ const MOCK_ORDERS: Order[] = [
         name: "I Dare to Stand Out",
         price: 8500,
         quantity: 2,
-        category: "tees",
+        category: "leadership",
         selectedSize: "L",
         selectedColor: "#000000",
       },
@@ -111,10 +111,10 @@ const MOCK_ORDERS: Order[] = [
     items: [
       {
         id: "4",
-        name: "Mashafy Reflection Journal",
+        name: "The Growth Mindset: Principles for Success",
         price: 12000,
         quantity: 1,
-        category: "journals",
+        category: "leadership",
       },
     ],
     total_price: 12000,
@@ -135,7 +135,7 @@ const MOCK_ORDERS: Order[] = [
         name: "Ambitious and Anointed",
         price: 8500,
         quantity: 1,
-        category: "tees",
+        category: "leadership",
         selectedSize: "S",
         selectedColor: "#FFFFFF",
       },
@@ -244,9 +244,9 @@ export const MOCK_PRODUCTS = [
   {
     id: "1",
     name: "I Dare to Stand Out",
-    description: "Unisex minimalist typography tee with universal appeal",
+    description: "Inspiring tales of courage and transformation",
     price: 8500,
-    category: "tees",
+    category: "leadership",
     image:
       "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500&h=500&fit=crop",
     colors: ["#000000", "#FFFFFF", "#8B4513"],
@@ -257,9 +257,9 @@ export const MOCK_PRODUCTS = [
   {
     id: "2",
     name: "Ambitious and Anointed",
-    description: "Female-cut empowering tee for the bold visionary",
+    description: "A journey of faith, purpose, and spiritual awakening",
     price: 8500,
-    category: "tees",
+    category: "leadership",
     image:
       "https://images.unsplash.com/photo-1523293182086-7651a899d37f?w=500&h=500&fit=crop",
     colors: ["#000000", "#FFFFFF"],
@@ -270,9 +270,10 @@ export const MOCK_PRODUCTS = [
   {
     id: "3",
     name: "Fierce and Fearless",
-    description: "Bold statement tee for those who dare differently",
+    description:
+      "A gripping fiction about overcoming life's greatest challenges",
     price: 8500,
-    category: "tees",
+    category: "fiction",
     image:
       "https://images.unsplash.com/photo-1503341320519-c92dcca89b13?w=500&h=500&fit=crop",
     colors: ["#8B0000", "#000000", "#FFFFFF"],
@@ -282,10 +283,11 @@ export const MOCK_PRODUCTS = [
   },
   {
     id: "4",
-    name: "Mashafy Reflection Journal",
-    description: "Premium journal for intentional living and daily clarity",
+    name: "The Growth Mindset: Principles for Success",
+    description:
+      "Transform your mindset and unlock your potential for lasting growth",
     price: 12000,
-    category: "journals",
+    category: "leadership",
     image:
       "https://images.unsplash.com/photo-1507842217343-583f20270319?w=500&h=500&fit=crop",
     colors: ["#8B4513", "#000000"],
@@ -352,7 +354,7 @@ export const clearProductCache = () => {
   cachedProducts = null;
   cacheTtl = 0;
   try {
-    localStorage.removeItem("mashafy_products_cache");
+    localStorage.removeItem("tabitha_products_cache");
   } catch (e) {
     console.warn("Failed to clear localStorage cache");
   }

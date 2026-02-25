@@ -3,7 +3,7 @@ export interface Product {
   name: string;
   description: string;
   price: number;
-  category: "tees" | "journals";
+  category: "leadership" | "fiction" | "lifestyle";
   image: string;
   sizes?: string[];
   colors?: string[];
