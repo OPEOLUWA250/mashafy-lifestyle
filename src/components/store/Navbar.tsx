@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { ShoppingBag, Menu, X, User, LogOut } from "lucide-react";
+import { ShoppingBag, Menu, X } from "lucide-react";
 import { useCartStore } from "../../store/cartStore";
 
 interface NavbarProps {
@@ -67,16 +67,6 @@ export const Navbar: React.FC<NavbarProps> = ({ isAdmin = false }) => {
                 )}
               </Link>
             )}
-            <Link
-              to={isAdmin ? "/" : "/admin"}
-              className="p-2 hover:bg-gray-100 rounded-full transition"
-            >
-              {isAdmin ? (
-                <LogOut className="w-5 h-5 text-gray-700" />
-              ) : (
-                <User className="w-5 h-5 text-gray-700" />
-              )}
-            </Link>
           </div>
 
           {/* Mobile Cart Icon & Menu Button */}

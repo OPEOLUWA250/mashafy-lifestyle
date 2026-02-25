@@ -118,41 +118,6 @@ export const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* Core Values Section */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-white">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">
-              Our Core Values
-            </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Mashafy stands for more than fashion. We believe in:
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-6">
-            {[
-              "Ambition",
-              "Faith",
-              "Refinement",
-              "Identity",
-              "Confidence",
-              "Audacity",
-            ].map((value, idx) => (
-              <div
-                key={idx}
-                className="p-6 bg-gradient-to-br from-gray-50 to-white rounded-lg border border-gray-200 hover:shadow-lg transition text-center"
-              >
-                <div className="text-2xl font-bold text-primary-600 mb-2">
-                  {value[0]}
-                </div>
-                <h3 className="text-lg font-bold text-gray-900">{value}</h3>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* Featured Products */}
       <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gray-50">
         <div className="max-w-7xl mx-auto">
@@ -187,6 +152,41 @@ export const Home: React.FC = () => {
             >
               View All Products <ArrowRight className="w-4 h-4 ml-2" />
             </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Core Values Section */}
+      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-white">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+              Our Core Values
+            </h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              Mashafy stands for more than fashion. We believe in:
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-6">
+            {[
+              "Ambition",
+              "Faith",
+              "Refinement",
+              "Identity",
+              "Confidence",
+              "Audacity",
+            ].map((value, idx) => (
+              <div
+                key={idx}
+                className="p-6 bg-gradient-to-br from-gray-50 to-white rounded-lg border border-gray-200 hover:shadow-lg transition text-center"
+              >
+                <div className="text-2xl font-bold text-primary-600 mb-2">
+                  {value[0]}
+                </div>
+                <h3 className="text-lg font-bold text-gray-900">{value}</h3>
+              </div>
+            ))}
           </div>
         </div>
       </section>
