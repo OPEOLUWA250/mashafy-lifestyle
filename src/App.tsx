@@ -24,13 +24,27 @@ import { AdminLogin } from "./pages/admin/Login";
 import { FloatingButtons } from "./components/FloatingButtons";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { getProducts } from "./utils/supabase";
+import { useAuthStore } from "./store/authStore";
 
 function App() {
   useEffect(() => {
+    // Initialize admin session
+    const initializeAuth = async () => {
+      const initializeSession = useAuthStore.getState().initializeSession;
+      await initializeSession();
+    };
+
     // Preload products on app startup
-    getProducts().catch((err) => {
-      console.error("Failed to preload products:", err);
-    });
+    const preloadProducts = async () => {
+      try {
+        await getProducts();
+      } catch (err) {
+        console.error("Failed to preload products:", err);
+      }
+    };
+
+    initializeAuth();
+    preloadProducts();
   }, []);
 
   return (

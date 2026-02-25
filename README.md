@@ -218,30 +218,34 @@ npm run preview  # Preview production build
 ## 🔐 Security
 
 - Type-safe with TypeScript
-- Environment variable support ready
-- Input validation
-- XSS protection with React
-- **Admin Authentication**: Secure login with email/password
-- **Rate Limiting**: Prevent brute force attacks (5 attempts, 15-min lockout)
+- Input validation and XSS protection with React
+- **Secure Admin Authentication**: Credentials managed by Supabase backend
+- **No Exposed Credentials**: Admin passwords never stored in frontend or environment
+- **Rate Limiting**: Protects against brute force attacks (5 attempts, 15-minute lockout)
 - **Session Management**: Activity tracking and 30-minute inactivity timeout
-- **Protected Routes**: All admin functionality requires valid session
+- **Protected Routes**: All admin functionality requires valid Supabase session
+- **Backend Validation**: All authentication handled securely by Supabase servers
 
 ## 🔑 Admin Authentication Setup
 
-1. Copy `.env.example` to `.env.local`
-2. Set your admin credentials:
-   ```env
-   VITE_ADMIN_EMAIL=admin@mashafy.com
-   VITE_ADMIN_PASSWORD=your_secure_password
-   ```
-3. Access admin dashboard at `/admin/login`
+Admin accounts are securely managed through **Supabase Authentication**. No credentials are stored in environment variables or code.
+
+### Creating Admin Users
+
+1. **Go to Supabase Dashboard** → Select your project
+2. **Navigate to** Authentication → Users
+3. **Click** "Add User" button
+4. **Enter** email and password for your admin account
+5. Admin can now login at `/admin/login` with their Supabase credentials
 
 ### Security Features
 
-- ✅ Account lockout after 5 failed login attempts (15-minute lockout)
-- ✅ Automatic logout after 30 minutes of inactivity
-- ✅ Session validation on protected routes
-- ✅ Activity tracking to prevent timeout during active use
+- ✅ **Supabase Backend Authentication**: Credentials validated on secure backend
+- ✅ **No Exposed Credentials**: No passwords in frontend code or environment variables
+- ✅ **Rate Limiting**: Account lockout after 5 failed login attempts (15-minute lockout)
+- ✅ **Session Timeout**: Automatic logout after 30 minutes of inactivity
+- ✅ **Session Validation**: All protected routes validate active session
+- ✅ **Activity Tracking**: User activity resets the inactivity timeout
 
 ## 📝 Notes
 

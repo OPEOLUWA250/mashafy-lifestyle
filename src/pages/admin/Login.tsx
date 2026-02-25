@@ -29,9 +29,10 @@ export const AdminLogin: React.FC = () => {
       } else {
         setError(result.error || "Invalid email or password");
       }
-    } catch (err) {
-      setError("An error occurred during login");
-      console.error(err);
+    } catch (err: any) {
+      const errorMessage = err?.message || "An error occurred during login";
+      setError(errorMessage);
+      console.error("Login error:", err);
     } finally {
       setLoading(false);
     }

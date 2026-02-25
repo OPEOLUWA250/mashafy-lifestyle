@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { supabase } from "../utils/supabase";
 
 interface AuthState {
   isAuthenticated: boolean;
@@ -13,18 +14,13 @@ interface AuthState {
   updateActivity: () => void;
   failedAttempts: number;
   lockoutTime: number | null;
+  initializeSession: () => Promise<void>;
 }
 
 // Security constants
 const MAX_FAILED_ATTEMPTS = 5;
 const LOCKOUT_DURATION = 15 * 60 * 1000; // 15 minutes
 const SESSION_TIMEOUT = 30 * 60 * 1000; // 30 minutes of inactivity
-
-// Admin credentials
-const ADMIN_CREDENTIALS = {
-  email: import.meta.env.VITE_ADMIN_EMAIL || "admin@mashafy.com",
-  password: import.meta.env.VITE_ADMIN_PASSWORD || "password123",
-};
 
 // In-memory tracking (persists during session)
 let failedAttemptCount = 0;
@@ -39,78 +35,97 @@ export const useAuthStore = create<AuthState>()(
       lockoutTime: null,
 
       login: async (email: string, password: string) => {
-        return new Promise((resolve) => {
-          setTimeout(() => {
-            const now = Date.now();
+        const now = Date.now();
 
-            // Check if account is locked
-            if (get().lockoutTime && now < get().lockoutTime!) {
-              const remainingMinutes = Math.ceil(
-                (get().lockoutTime! - now) / 1000 / 60,
-              );
-              resolve({
-                success: false,
-                error: `Too many failed attempts. Try again in ${remainingMinutes} minute${remainingMinutes !== 1 ? "s" : ""}.`,
-              });
-              return;
-            }
+        // Check if account is locked
+        if (get().lockoutTime && now < get().lockoutTime!) {
+          const remainingMinutes = Math.ceil(
+            (get().lockoutTime! - now) / 1000 / 60,
+          );
+          return {
+            success: false,
+            error: `Too many failed attempts. Try again in ${remainingMinutes} minute${remainingMinutes !== 1 ? "s" : ""}.`,
+          };
+        }
 
-            // Reset failed attempts if lockout expired
-            if (get().lockoutTime && now >= get().lockoutTime!) {
-              failedAttemptCount = 0;
-              set({ failedAttempts: 0, lockoutTime: null });
-            }
+        // Reset failed attempts if lockout expired
+        if (get().lockoutTime && now >= get().lockoutTime!) {
+          failedAttemptCount = 0;
+          set({ failedAttempts: 0, lockoutTime: null });
+        }
 
-            // Validate credentials
-            if (
-              email === ADMIN_CREDENTIALS.email &&
-              password === ADMIN_CREDENTIALS.password
-            ) {
-              // Reset failed attempts on successful login
-              failedAttemptCount = 0;
-              lastActivity = now;
+        // Authenticate with Supabase
+        if (!supabase) {
+          return {
+            success: false,
+            error:
+              "Authentication service not available. Please check your Supabase configuration.",
+          };
+        }
 
+        try {
+          const { data, error } = await supabase.auth.signInWithPassword({
+            email,
+            password,
+          });
+
+          if (error || !data.user) {
+            console.error("Login error:", error?.message || "Unknown error");
+
+            // Increment failed attempts
+            failedAttemptCount++;
+            const remainingAttempts = MAX_FAILED_ATTEMPTS - failedAttemptCount;
+
+            // Lock account if max attempts exceeded
+            if (failedAttemptCount >= MAX_FAILED_ATTEMPTS) {
+              const lockoutEndTime = now + LOCKOUT_DURATION;
               set({
-                isAuthenticated: true,
-                adminUser: {
-                  email,
-                  loginTime: now,
-                },
-                failedAttempts: 0,
-                lockoutTime: null,
+                failedAttempts: failedAttemptCount,
+                lockoutTime: lockoutEndTime,
               });
-              resolve({ success: true });
+              return {
+                success: false,
+                error: `Account locked due to too many failed attempts. Try again later.`,
+              };
             } else {
-              // Increment failed attempts
-              failedAttemptCount++;
-
-              const remainingAttempts =
-                MAX_FAILED_ATTEMPTS - failedAttemptCount;
-
-              // Lock account if max attempts exceeded
-              if (failedAttemptCount >= MAX_FAILED_ATTEMPTS) {
-                const lockoutEndTime = now + LOCKOUT_DURATION;
-                set({
-                  failedAttempts: failedAttemptCount,
-                  lockoutTime: lockoutEndTime,
-                });
-                resolve({
-                  success: false,
-                  error: `Account locked due to too many failed attempts. Try again later.`,
-                });
-              } else {
-                set({ failedAttempts: failedAttemptCount });
-                resolve({
-                  success: false,
-                  error: `Invalid email or password. (${remainingAttempts} attempt${remainingAttempts !== 1 ? "s" : ""} remaining)`,
-                });
-              }
+              set({ failedAttempts: failedAttemptCount });
+              return {
+                success: false,
+                error:
+                  error?.message ||
+                  `Invalid email or password. (${remainingAttempts} attempt${remainingAttempts !== 1 ? "s" : ""} remaining)`,
+              };
             }
-          }, 500);
-        });
+          }
+
+          // Successful login
+          failedAttemptCount = 0;
+          lastActivity = now;
+
+          set({
+            isAuthenticated: true,
+            adminUser: {
+              email: data.user.email || "",
+              loginTime: now,
+            },
+            failedAttempts: 0,
+            lockoutTime: null,
+          });
+
+          return { success: true };
+        } catch (err: any) {
+          console.error("Unexpected login error:", err);
+          return {
+            success: false,
+            error: err?.message || "An unexpected error occurred during login",
+          };
+        }
       },
 
       logout: () => {
+        if (supabase) {
+          supabase.auth.signOut().catch(console.error);
+        }
         set({
           isAuthenticated: false,
           adminUser: null,
@@ -141,6 +156,28 @@ export const useAuthStore = create<AuthState>()(
 
       updateActivity: () => {
         lastActivity = Date.now();
+      },
+
+      initializeSession: async () => {
+        if (!supabase) return;
+
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+
+        if (session?.user) {
+          failedAttemptCount = 0;
+          lastActivity = Date.now();
+          set({
+            isAuthenticated: true,
+            adminUser: {
+              email: session.user.email || "",
+              loginTime: Date.now(),
+            },
+            failedAttempts: 0,
+            lockoutTime: null,
+          });
+        }
       },
     }),
     {
