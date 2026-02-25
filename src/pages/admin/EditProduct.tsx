@@ -127,9 +127,9 @@ export const EditProduct: React.FC = () => {
         return;
       }
 
-      // Success - clear cache and navigate back to products
+      // Success - clear cache and navigate back to dashboard
       clearProductCache();
-      navigate("/admin/products");
+      navigate("/admin");
     } catch (err: any) {
       setError(err.message || "An error occurred");
     } finally {
