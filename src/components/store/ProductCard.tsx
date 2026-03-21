@@ -58,7 +58,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       <div className="p-4">
         <div className="mb-2">
           <span className="text-xs font-semibold text-primary-600 uppercase tracking-wide">
-            {product.category === "tees" ? "👕 Tees" : "📓 Journals"}
+            {product.category === "tees" ? "👕 Tees" : product.category === "journals" ? "📓 Journals" : product.category}
           </span>
         </div>
 

@@ -26,16 +26,9 @@ import { FloatingButtons } from "./components/FloatingButtons";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { ScrollToTop } from "./components/ScrollToTop";
 import { getProducts } from "./utils/supabase";
-import { useAuthStore } from "./store/authStore";
 
 function App() {
   useEffect(() => {
-    // Initialize admin session
-    const initializeAuth = async () => {
-      const initializeSession = useAuthStore.getState().initializeSession;
-      await initializeSession();
-    };
-
     // Preload products on app startup
     const preloadProducts = async () => {
       try {
@@ -45,7 +38,6 @@ function App() {
       }
     };
 
-    initializeAuth();
     preloadProducts();
   }, []);
 

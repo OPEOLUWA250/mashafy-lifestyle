@@ -195,25 +195,6 @@ export const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* Community CTA */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-primary-600 to-primary-700">
-        <div className="max-w-4xl mx-auto text-center text-white">
-          <h2 className="text-4xl font-bold mb-4">Join the Muse Community</h2>
-          <p className="text-lg text-primary-100 mb-8">
-            Be part of a gender-inclusive community of visionaries connected by
-            purpose and belonging
-          </p>
-          <input
-            type="email"
-            placeholder="Enter your email"
-            className="w-full md:w-96 px-4 py-3 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-white"
-          />
-          <button className="mt-4 px-8 py-3 bg-white text-primary-600 font-semibold rounded-lg hover:bg-gray-100 transition">
-            Subscribe Now
-          </button>
-        </div>
-      </section>
-
       <Footer />
     </div>
   );
