@@ -78,8 +78,8 @@ export const Shop: React.FC = () => {
       <Navbar />
 
       {/* Header */}
-      <section className="pt-32 pb-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-gray-50 to-white">
-        <div className="max-w-7xl mx-auto">
+      <section className="bg-gradient-to-br from-gray-50 to-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-12">
           <h1 className="text-5xl font-bold text-gray-900 mb-4">
             Our Collection
           </h1>
@@ -90,8 +90,8 @@ export const Shop: React.FC = () => {
       </section>
 
       {/* Shop Content */}
-      <section className="py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
+      <section>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
             {/* Filters Sidebar */}
             <div
@@ -196,7 +196,7 @@ export const Shop: React.FC = () => {
               {/* Mobile Filter Button */}
               <button
                 onClick={() => setShowFilters(!showFilters)}
-                className="lg:hidden mb-6 flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition w-full justify-center"
+                className="lg:hidden mb-6 flex items-center space-x-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition w-full justify-center"
               >
                 <Filter className="w-5 h-5" />
                 <span>Filters</span>

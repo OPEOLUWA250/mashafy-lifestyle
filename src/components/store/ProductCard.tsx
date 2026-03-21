@@ -2,15 +2,19 @@ import React, { useState } from "react";
 import { ShoppingCart, Heart } from "lucide-react";
 import type { Product } from "../../types";
 import { useCartStore } from "../../store/cartStore";
+import { useWishlistStore } from "../../store/wishlistStore";
 
 interface ProductCardProps {
   product: Product;
 }
 
 export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
-  const [isWishlisted, setIsWishlisted] = useState(false);
   const [showAddedNotif, setShowAddedNotif] = useState(false);
   const addItem = useCartStore((state) => state.addItem);
+  const toggleWishlist = useWishlistStore((state) => state.toggleItem);
+  const isWishlisted = useWishlistStore((state) =>
+    state.isWishlisted(product.id),
+  );
 
   const handleAddToCart = () => {
     addItem(product, 1);
@@ -41,7 +45,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           </div>
         )}
         <button
-          onClick={() => setIsWishlisted(!isWishlisted)}
+          onClick={() => toggleWishlist(product)}
           className="absolute top-3 right-3 p-2 bg-white rounded-full shadow hover:bg-gray-100 transition"
         >
           <Heart
