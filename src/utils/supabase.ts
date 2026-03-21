@@ -113,7 +113,9 @@ const triggerSync = () => {
   window.dispatchEvent(new CustomEvent("mashafy-products-changed"));
 };
 
-// Local products
+// ⚠️ IMPORTANT: Local products are ONLY for offline/fallback scenarios
+// These should be TEMPORARY and synced to Supabase as soon as possible
+// Do NOT use as primary storage!
 const getLocalProducts = (): any[] => {
   try {
     const stored = localStorage.getItem("mashafy_local_products");
@@ -134,75 +136,84 @@ const saveLocalProducts = (products: any[]) => {
     });
     const unique = Array.from(idMap.values());
     localStorage.setItem("mashafy_local_products", JSON.stringify(unique));
-    console.log("💾 Saved local products (deduplicated):", unique.length, "products");
+    console.log("⚠️  Saved to LOCAL STORAGE (should be synced to Supabase):", unique.length, "products");
   } catch (e) {
     console.warn("Failed to save local products");
   }
 };
 
-// Get products
+// Get products - SUPABASE IS SOURCE OF TRUTH
 export const getProducts = async () => {
   try {
     const deletedIds = getDeletedIds();
-    const local = getLocalProducts();
+    const localPendingProducts = getLocalProducts();
     
     console.log("🔍 getProducts called:");
     console.log("  📦 Deleted IDs:", deletedIds);
-    console.log("  💾 Local products from storage:", local.length, "items");
+    console.log("  💾 Local pending products from storage:", localPendingProducts.length, "items");
 
+    // If Supabase is NOT configured, return ONLY local products (true offline mode)
     if (!isSupabaseConfigured || !supabase) {
-      console.log("  ⚠️  Offline mode: returning ONLY local products");
-      const filtered = local.filter(p => !deletedIds.includes(p.id));
+      console.log("  ⚠️  OFFLINE MODE: Supabase not configured, returning ONLY local products");
+      const filtered = localPendingProducts.filter(p => !deletedIds.includes(p.id));
       console.log("  ✅ Offline: returning", filtered.length, "products");
       return { data: filtered, error: null };
     }
 
+    // Use cache if valid (Supabase is source, but cache reduces API calls)
     if (cachedProducts && Date.now() < cacheTtl) {
-      const localIds = new Set(local.map(p => p.id));
-      const filtered = cachedProducts
-        .filter((p: any) => !deletedIds.includes(p.id) && !localIds.has(p.id));
-      const combined = [...filtered, ...local];
-      console.log("  ✅ Cached mode: returning", combined.length, "products (no MOCK)");
+      console.log("  ✅ Using VALID CACHE:", cachedProducts.length, "products from Supabase");
+      const supabaseFiltered = cachedProducts.filter((p: any) => !deletedIds.includes(p.id));
+      // ADD local pending products (they will sync eventually)
+      const combined = [...supabaseFiltered, ...localPendingProducts.filter(p => !deletedIds.includes(p.id))];
+      console.log("  ✅ Returning", combined.length, "total products (Supabase + pending)");
       return { data: combined, error: null };
     }
 
-    console.log("  🌐 Fetching from Supabase...");
+    // Fetch from Supabase (ALWAYS if cache expired)
+    console.log("  🌐 Cache expired or invalid - FETCHING from Supabase...");
     const { data, error } = await supabase
       .from("products")
-      .select("id, name, description, price, category, stock, image_url, created_at");
+      .select("id, name, description, price, category, stock, image_url, created_at")
+      .order("created_at", { ascending: false });
 
-    console.log("  📡 Supabase response:", error ? "ERROR" : "OK", "fetched", data?.length || 0, "products");
+    console.log("  📡 Supabase response:", error ? "❌ ERROR" : "✅ OK", "fetched", data?.length || 0, "products");
 
+    // If Supabase returns an error
     if (error) {
-      console.log("  ⚠️  Supabase error: returning ONLY local products");
-      const filtered = local.filter(p => !deletedIds.includes(p.id));
-      console.log("  ✅ Fallback: returning", filtered.length, "products");
-      return { data: filtered, error: null };
+      console.error("  ❌ Supabase fetch error:", error.message);
+      console.log("  ⚠️  FALLBACK: Using cached data + local pending products");
+      const filtered = (cachedProducts || []).filter((p: any) => !deletedIds.includes(p.id));
+      const combined = [...filtered, ...localPendingProducts.filter(p => !deletedIds.includes(p.id))];
+      console.log("  ✅ Fallback: returning", combined.length, "products");
+      return { data: combined, error: null };
     }
 
+    // Supabase returned empty - possible new store
     if (!data || data.length === 0) {
-      console.log("  ⚠️  Supabase empty: returning ONLY local products");
-      const filtered = local.filter(p => !deletedIds.includes(p.id));
-      console.log("  ✅ Fallback: returning", filtered.length, "products");
+      console.log("  ℹ️  Supabase returned no products - returning ONLY local pending products");
+      const filtered = localPendingProducts.filter(p => !deletedIds.includes(p.id));
+      console.log("  ✅ Returning", filtered.length, "products (local pending)");
       return { data: filtered, error: null };
     }
 
+    // Success! Update cache and return
+    console.log("  ✅ Supabase fetch successful!");
     cachedProducts = data;
     cacheTtl = Date.now() + CACHE_DURATION;
     saveCacheToStorage(data);
 
-    const localIds = new Set(local.map(p => p.id));
-    const filtered = data
-      .filter((p: any) => !deletedIds.includes(p.id) && !localIds.has(p.id));
-    const combined = [...filtered, ...local];
-    console.log("  ✅ Supabase success: returning", combined.length, "products (no MOCK fallback)");
+    const supabaseFiltered = data.filter((p: any) => !deletedIds.includes(p.id));
+    // Include local pending products
+    const combined = [...supabaseFiltered, ...localPendingProducts.filter(p => !deletedIds.includes(p.id))];
+    console.log("  ✅ Returning", combined.length, "total products (Supabase + pending)");
     return { data: combined, error: null };
   } catch (error) {
+    console.error("  ❌ Unexpected error in getProducts:", error);
     const deletedIds = getDeletedIds();
-    const local = getLocalProducts();
-    console.log("  ❌ Error in getProducts, returning ONLY local products");
-    const filtered = local.filter(p => !deletedIds.includes(p.id));
-    console.log("  ✅ Fallback: returning", filtered.length, "products");
+    const localPendingProducts = getLocalProducts();
+    const filtered = localPendingProducts.filter(p => !deletedIds.includes(p.id));
+    console.log("  ✅ Emergency fallback: returning", filtered.length, "products (local only)");
     return { data: filtered, error: null };
   }
 };
@@ -219,54 +230,75 @@ export const clearProductCache = () => {
 };
 
 export const createProduct = async (product: any) => {
+  console.log("📝 createProduct called with:", { name: product.name, category: product.category });
+  
   try {
+    // If Supabase not configured, must store locally
     if (!isSupabaseConfigured || !supabase) {
+      console.warn("⚠️  Supabase NOT configured - FORCED to use LOCAL storage");
       const newProduct = {
         ...product,
-        id: "local-" + Date.now(),
+        id: "local-pending-" + Date.now(),
         created_at: new Date().toISOString(),
+        _synced: false, // Mark as NOT synced
       };
       const local = getLocalProducts();
       local.push(newProduct);
       saveLocalProducts(local);
       clearProductCache();
-      logAdminAction("product_created", { id: newProduct.id, name: product.name }, "success");
+      logAdminAction("product_created", { id: newProduct.id, name: product.name, synced: false }, "success");
+      console.warn("⚠️  Product saved LOCALLY ONLY - will need sync when Supabase is available");
       return { data: newProduct, error: null };
     }
 
+    // Try Supabase first
+    console.log("☁️  Attempting to save to Supabase...");
     const { data, error } = await supabase
       .from("products")
       .insert([product])
       .select();
 
     if (error) {
+      console.error("❌ Supabase INSERT error:", error.message);
+      console.warn("⚠️  FALLBACK: Saving to local storage - product will sync when Supabase is available");
+      
+      // Save locally with pending flag
       const newProduct = {
         ...product,
-        id: "local-" + Date.now(),
+        id: "local-pending-" + Date.now(),
         created_at: new Date().toISOString(),
+        _synced: false,
       };
       const local = getLocalProducts();
       local.push(newProduct);
       saveLocalProducts(local);
       clearProductCache();
-      logAdminAction("product_created", { id: newProduct.id, name: product.name }, "success");
+      logAdminAction("product_created", { id: newProduct.id, name: product.name, synced: false, supabaseError: error.message }, "success");
       return { data: newProduct, error: null };
     }
 
+    // Success on Supabase!
+    console.log("✅ Product saved to Supabase successfully!");
     clearProductCache();
-    logAdminAction("product_created", { id: data?.[0]?.id, name: product.name }, "success");
+    logAdminAction("product_created", { id: data?.[0]?.id, name: product.name, synced: true }, "success");
+    console.log("✅ Product ID:", data?.[0]?.id);
     return { data, error: null };
   } catch (error) {
+    console.error("❌ Exception in createProduct:", error);
+    console.warn("⚠️  FALLBACK: Saving to local storage");
+    
+    // Save locally with pending flag
     const newProduct = {
       ...product,
-      id: "local-" + Date.now(),
+      id: "local-pending-" + Date.now(),
       created_at: new Date().toISOString(),
+      _synced: false,
     };
     const local = getLocalProducts();
     local.push(newProduct);
     saveLocalProducts(local);
     clearProductCache();
-    logAdminAction("product_created", { id: newProduct.id, name: product.name }, "success");
+    logAdminAction("product_created", { id: newProduct.id, name: product.name, synced: false, error: String(error) }, "success");
     return { data: newProduct, error: null };
   }
 };
