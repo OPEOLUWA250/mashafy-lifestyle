@@ -139,26 +139,29 @@ export const AdminDashboard: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
       <Navbar isAdmin={true} />
 
       <div className="pt-20 md:pt-32 pb-20 px-3 sm:px-4 md:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
-          <div className="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900">
-              Dashboard
-            </h1>
+          <div className="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
+            <div>
+              <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-2">
+                Admin Dashboard
+              </h1>
+              <p className="text-gray-600 text-sm">Manage your Mashafy store products and inventory</p>
+            </div>
             <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
               <Link
                 to="/admin/products/new"
-                className="w-full sm:w-auto inline-flex items-center justify-center px-6 sm:px-8 py-3 bg-primary-600 text-white font-semibold rounded-lg hover:bg-primary-700 transition shadow-lg text-sm sm:text-base"
+                className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-3 bg-gradient-to-r from-primary-600 to-primary-700 text-white font-semibold rounded-xl hover:shadow-lg transition-all duration-300 shadow-md text-sm hover:scale-105 transform"
               >
                 <Plus className="w-5 h-5 mr-2" />
                 Add Product
               </Link>
               <button
                 onClick={handleLogout}
-                className="w-full sm:w-auto inline-flex items-center justify-center px-6 sm:px-8 py-3 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition shadow-lg text-sm sm:text-base"
+                className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-3 bg-red-600 text-white font-semibold rounded-xl hover:bg-red-700 transition-all duration-300 shadow-md hover:shadow-lg text-sm"
               >
                 <LogOut className="w-5 h-5 mr-2" />
                 Logout
@@ -168,20 +171,23 @@ export const AdminDashboard: React.FC = () => {
 
           {/* Products Section */}
           <div className="mb-12">
-            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4">
-              Products
-            </h2>
-
-            {/* Search */}
             <div className="mb-6">
+              <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
+                Products Library
+              </h2>
+              <p className="text-gray-600 text-sm">Total: <span className="font-semibold text-primary-600">{products.length}</span> products</p>
+            </div>
+
+            {/* Search Bar */}
+            <div className="mb-8">
               <div className="relative">
-                <Search className="absolute left-3 sm:left-4 top-2.5 sm:top-3.5 w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
+                <Search className="absolute left-4 top-3.5 w-5 h-5 text-gray-400" />
                 <input
                   type="text"
-                  placeholder="Search products..."
+                  placeholder="Search by product name..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-9 sm:pl-12 pr-3 sm:pr-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-600 text-sm sm:text-base"
+                  className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-600 focus:border-transparent text-sm transition-all bg-white shadow-sm"
                 />
               </div>
             </div>
@@ -189,80 +195,90 @@ export const AdminDashboard: React.FC = () => {
             {products.length > 0 ? (
               <>
                 {/* Desktop Table */}
-                <div className="hidden md:block bg-white rounded-lg border border-gray-200 shadow-sm overflow-x-auto">
+                <div className="hidden md:block bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
                   <table className="w-full">
                     <thead>
-                      <tr className="bg-gray-50 border-b border-gray-200">
-                        <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">
+                      <tr className="bg-gradient-to-r from-gray-50 to-gray-100 border-b-2 border-gray-200">
+                        <th className="px-6 py-4 text-left text-sm font-bold text-gray-900">
                           Product
                         </th>
-                        <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">
+                        <th className="px-6 py-4 text-left text-sm font-bold text-gray-900">
                           Category
                         </th>
-                        <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">
+                        <th className="px-6 py-4 text-left text-sm font-bold text-gray-900">
                           Price
                         </th>
-                        <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">
+                        <th className="px-6 py-4 text-left text-sm font-bold text-gray-900">
                           Stock
                         </th>
-                        <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">
+                        <th className="px-6 py-4 text-left text-sm font-bold text-gray-900">
                           Actions
                         </th>
                       </tr>
                     </thead>
-                    <tbody>
+                    <tbody className="divide-y divide-gray-200">
                       {filteredProducts.map((product) => (
                         <tr
                           key={product.id}
-                          className="border-b border-gray-200 hover:bg-gray-50"
+                          className="hover:bg-gradient-to-r hover:from-primary-50 hover:to-transparent transition-colors duration-200"
                         >
                           <td className="px-6 py-4">
-                            <div className="flex items-center space-x-3">
-                              <img
-                                src={product.image_url}
-                                alt={product.name}
-                                className="w-10 h-10 rounded object-cover"
-                              />
-                              <span className="font-medium text-gray-900">
-                                {product.name}
-                              </span>
+                            <div className="flex items-center space-x-4">
+                              <div className="flex-shrink-0">
+                                <img
+                                  src={product.image_url}
+                                  alt={product.name}
+                                  className="w-12 h-12 rounded-lg object-cover shadow-sm border border-gray-200"
+                                />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="font-semibold text-gray-900 text-sm truncate">
+                                  {product.name}
+                                </p>
+                              </div>
                             </div>
                           </td>
-                          <td className="px-6 py-4 text-sm text-gray-600 capitalize">
-                            {product.category}
+                          <td className="px-6 py-4 text-sm text-gray-600 capitalize font-medium">
+                            <span className="px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-semibold">
+                              {product.category}
+                            </span>
                           </td>
-                          <td className="px-6 py-4 text-sm font-bold text-gray-900">
-                            ₦{Number(product.price).toLocaleString()}
+                          <td className="px-6 py-4 text-sm">
+                            <span className="font-bold text-primary-600 text-base">
+                              ₦{Number(product.price).toLocaleString()}
+                            </span>
                           </td>
                           <td className="px-6 py-4 text-sm">
                             <span
-                              className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                              className={`px-3 py-1.5 rounded-full text-xs font-bold ${
                                 product.stock > 20
-                                  ? "bg-green-100 text-green-800"
+                                  ? "bg-green-100 text-green-700"
                                   : product.stock > 10
-                                    ? "bg-yellow-100 text-yellow-800"
+                                    ? "bg-yellow-100 text-yellow-700"
                                     : product.stock > 0
-                                      ? "bg-red-100 text-red-800"
-                                      : "bg-gray-100 text-gray-800"
+                                      ? "bg-orange-100 text-orange-700"
+                                      : "bg-red-100 text-red-700"
                               }`}
                             >
                               {product.stock > 0 ? `${product.stock}` : "Out"}
                             </span>
                           </td>
-                          <td className="px-6 py-4 text-sm space-x-2">
-                            <Link
-                              to={`/admin/products/${product.id}/edit`}
-                              className="p-2 text-blue-600 hover:bg-blue-50 rounded transition inline-flex disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                              <Edit className="w-4 h-4" />
-                            </Link>
-                            <button
-                              onClick={() => handleDelete(product.id)}
-                              className="p-2 text-red-600 hover:bg-red-50 rounded transition disabled:opacity-50 disabled:cursor-not-allowed inline-flex"
-                              disabled={deleting !== null}
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
+                          <td className="px-6 py-4 text-sm">
+                            <div className="flex items-center space-x-3">
+                              <Link
+                                to={`/admin/products/${product.id}/edit`}
+                                className="p-2 text-gray-600 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all duration-200 border border-gray-200 hover:border-primary-300"
+                              >
+                                <Edit className="w-4 h-4" />
+                              </Link>
+                              <button
+                                onClick={() => handleDelete(product.id)}
+                                className="p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200 border border-gray-200 hover:border-red-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                                disabled={deleting !== null}
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       ))}
@@ -271,40 +287,42 @@ export const AdminDashboard: React.FC = () => {
                 </div>
 
                 {/* Mobile Card View */}
-                <div className="md:hidden space-y-3">
+                <div className="md:hidden space-y-4">
                   {filteredProducts.map((product) => (
                     <div
                       key={product.id}
-                      className="bg-white rounded-lg border border-gray-200 p-4 shadow-sm"
+                      className="bg-white rounded-2xl border border-gray-200 p-4 shadow-sm hover:shadow-md transition-shadow duration-200"
                     >
-                      <div className="flex gap-3 mb-3">
+                      <div className="flex gap-4 mb-4">
                         <img
                           src={product.image_url}
                           alt={product.name}
-                          className="w-16 h-16 rounded object-cover"
+                          className="w-20 h-20 rounded-xl object-cover flex-shrink-0 shadow-sm border border-gray-200"
                         />
-                        <div className="flex-1">
-                          <h3 className="font-semibold text-gray-900 text-sm">
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-bold text-gray-900 text-sm mb-1 line-clamp-2">
                             {product.name}
                           </h3>
-                          <p className="text-xs text-gray-600 capitalize">
-                            {product.category}
+                          <p className="text-xs text-gray-600 capitalize mb-2">
+                            <span className="px-2 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-semibold">
+                              {product.category}
+                            </span>
                           </p>
-                          <p className="text-sm font-bold text-gray-900 mt-1">
+                          <p className="text-sm font-bold text-primary-600">
                             ₦{Number(product.price).toLocaleString()}
                           </p>
                         </div>
                       </div>
-                      <div className="flex justify-between items-center">
+                      <div className="flex justify-between items-center pt-3 border-t border-gray-100">
                         <span
-                          className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                          className={`px-3 py-1.5 rounded-full text-xs font-bold ${
                             product.stock > 20
-                              ? "bg-green-100 text-green-800"
+                              ? "bg-green-100 text-green-700"
                               : product.stock > 10
-                                ? "bg-yellow-100 text-yellow-800"
+                                ? "bg-yellow-100 text-yellow-700"
                                 : product.stock > 0
-                                  ? "bg-red-100 text-red-800"
-                                  : "bg-gray-100 text-gray-800"
+                                  ? "bg-orange-100 text-orange-700"
+                                  : "bg-red-100 text-red-700"
                           }`}
                         >
                           {product.stock > 0 ? `${product.stock}` : "Out"}
@@ -312,13 +330,13 @@ export const AdminDashboard: React.FC = () => {
                         <div className="flex gap-2">
                           <Link
                             to={`/admin/products/${product.id}/edit`}
-                            className="p-1.5 text-blue-600 hover:bg-blue-50 rounded transition inline-flex"
+                            className="p-2 text-gray-600 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all duration-200 border border-gray-200"
                           >
                             <Edit className="w-4 h-4" />
                           </Link>
                           <button
                             onClick={() => handleDelete(product.id)}
-                            className="p-1.5 text-red-600 hover:bg-red-50 rounded transition disabled:opacity-50 disabled:cursor-not-allowed inline-flex"
+                            className="p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200 border border-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
                             disabled={deleting !== null}
                           >
                             <Trash2 className="w-4 h-4" />
@@ -330,20 +348,26 @@ export const AdminDashboard: React.FC = () => {
                 </div>
               </>
             ) : (
-              <div className="bg-white rounded-lg border border-gray-200 p-8 text-center">
-                <p className="text-gray-600 text-sm sm:text-base">
+              <div className="bg-white rounded-2xl border border-gray-200 p-12 text-center shadow-sm">
+                <div className="mb-4">
+                  <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4">
+                    <Plus className="w-8 h-8 text-gray-400" />
+                  </div>
+                </div>
+                <p className="text-gray-600 text-sm mb-2">
                   {searchTerm
                     ? "No products match your search."
-                    : "No products yet."}{" "}
-                  {!searchTerm && (
-                    <Link
-                      to="/admin/products/new"
-                      className="text-primary-600 hover:text-primary-700 font-medium"
-                    >
-                      Create one now
-                    </Link>
-                  )}
+                    : "No products yet."}
                 </p>
+                {!searchTerm && (
+                  <Link
+                    to="/admin/products/new"
+                    className="inline-flex items-center px-6 py-2.5 mt-4 bg-primary-600 text-white font-semibold rounded-lg hover:bg-primary-700 transition-all duration-300"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Create your first product
+                  </Link>
+                )}
               </div>
             )}
           </div>
