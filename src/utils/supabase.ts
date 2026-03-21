@@ -143,35 +143,42 @@ const saveLocalProducts = (products: any[]) => {
 };
 
 // Get products - SUPABASE IS SOURCE OF TRUTH
-export const getProducts = async () => {
+export const getProducts = async (forceRefresh = false) => {
   try {
-    const deletedIds = getDeletedIds();
     const localPendingProducts = getLocalProducts();
+    // ONLY use deletedIds for local pending products, NOT for Supabase products
+    const deletedLocalIds = getDeletedIds().filter(id => id.startsWith("local-pending-"));
     
-    console.log("🔍 getProducts called:");
-    console.log("  📦 Deleted IDs:", deletedIds);
+    console.log("🔍 getProducts called:", { forceRefresh });
     console.log("  💾 Local pending products from storage:", localPendingProducts.length, "items");
+    console.log("  📦 Deleted LOCAL product IDs:", deletedLocalIds);
 
     // If Supabase is NOT configured, return ONLY local products (true offline mode)
     if (!isSupabaseConfigured || !supabase) {
       console.log("  ⚠️  OFFLINE MODE: Supabase not configured, returning ONLY local products");
-      const filtered = localPendingProducts.filter(p => !deletedIds.includes(p.id));
+      const filtered = localPendingProducts.filter(p => !deletedLocalIds.includes(p.id));
       console.log("  ✅ Offline: returning", filtered.length, "products");
       return { data: filtered, error: null };
     }
 
-    // Use cache if valid (Supabase is source, but cache reduces API calls)
-    if (cachedProducts && Date.now() < cacheTtl) {
+    // Use cache ONLY if valid AND not forced to refresh
+    if (!forceRefresh && cachedProducts && Date.now() < cacheTtl) {
       console.log("  ✅ Using VALID CACHE:", cachedProducts.length, "products from Supabase");
-      const supabaseFiltered = cachedProducts.filter((p: any) => !deletedIds.includes(p.id));
-      // ADD local pending products (they will sync eventually)
-      const combined = [...supabaseFiltered, ...localPendingProducts.filter(p => !deletedIds.includes(p.id))];
+      // NEVER filter Supabase products by deletion tracking
+      const combined = [...cachedProducts, ...localPendingProducts.filter(p => !deletedLocalIds.includes(p.id))];
       console.log("  ✅ Returning", combined.length, "total products (Supabase + pending)");
       return { data: combined, error: null };
     }
 
-    // Fetch from Supabase (ALWAYS if cache expired)
-    console.log("  🌐 Cache expired or invalid - FETCHING from Supabase...");
+    // Force refresh? Clear cache first
+    if (forceRefresh) {
+      console.log("  🔄 FORCE REFRESH: Clearing cache...");
+      cachedProducts = null;
+      cacheTtl = 0;
+    }
+
+    // Fetch from Supabase (ALWAYS if cache expired or forced)
+    console.log("  🌐 FETCHING from Supabase...");
     const { data, error } = await supabase
       .from("products")
       .select("id, name, description, price, category, stock, image_url, created_at")
@@ -183,16 +190,17 @@ export const getProducts = async () => {
     if (error) {
       console.error("  ❌ Supabase fetch error:", error.message);
       console.log("  ⚠️  FALLBACK: Using cached data + local pending products");
-      const filtered = (cachedProducts || []).filter((p: any) => !deletedIds.includes(p.id));
-      const combined = [...filtered, ...localPendingProducts.filter(p => !deletedIds.includes(p.id))];
+      // Still return Supabase products if available, even if errored
+      const fallbackData = cachedProducts || [];
+      const combined = [...fallbackData, ...localPendingProducts.filter(p => !deletedLocalIds.includes(p.id))];
       console.log("  ✅ Fallback: returning", combined.length, "products");
       return { data: combined, error: null };
     }
 
-    // Supabase returned empty - possible new store
+    // Supabase returned empty
     if (!data || data.length === 0) {
-      console.log("  ℹ️  Supabase returned no products - returning ONLY local pending products");
-      const filtered = localPendingProducts.filter(p => !deletedIds.includes(p.id));
+      console.log("  ℹ️  Supabase returned no products");
+      const filtered = localPendingProducts.filter(p => !deletedLocalIds.includes(p.id));
       console.log("  ✅ Returning", filtered.length, "products (local pending)");
       return { data: filtered, error: null };
     }
@@ -203,16 +211,15 @@ export const getProducts = async () => {
     cacheTtl = Date.now() + CACHE_DURATION;
     saveCacheToStorage(data);
 
-    const supabaseFiltered = data.filter((p: any) => !deletedIds.includes(p.id));
-    // Include local pending products
-    const combined = [...supabaseFiltered, ...localPendingProducts.filter(p => !deletedIds.includes(p.id))];
+    // NEVER filter Supabase products - they are source of truth
+    const combined = [...data, ...localPendingProducts.filter(p => !deletedLocalIds.includes(p.id))];
     console.log("  ✅ Returning", combined.length, "total products (Supabase + pending)");
     return { data: combined, error: null };
   } catch (error) {
     console.error("  ❌ Unexpected error in getProducts:", error);
-    const deletedIds = getDeletedIds();
     const localPendingProducts = getLocalProducts();
-    const filtered = localPendingProducts.filter(p => !deletedIds.includes(p.id));
+    const deletedLocalIds = getDeletedIds().filter(id => id.startsWith("local-pending-"));
+    const filtered = localPendingProducts.filter(p => !deletedLocalIds.includes(p.id));
     console.log("  ✅ Emergency fallback: returning", filtered.length, "products (local only)");
     return { data: filtered, error: null };
   }
@@ -227,6 +234,21 @@ export const clearProductCache = () => {
     console.warn("Failed to clear cache");
   }
   triggerSync();
+};
+
+// ⚠️ CRITICAL: Reset all product data - use when sync is broken
+export const hardResetProductData = async () => {
+  console.warn("⚠️⚠️⚠️ HARD RESET: Clearing ALL product cache to force fresh Supabase fetch");
+  cachedProducts = null;
+  cacheTtl = 0;
+  try {
+    localStorage.removeItem("mashafy_products_cache");
+  } catch (e) {
+    console.warn("Failed to perform hard reset");
+  }
+  triggerSync();
+  // Force a fresh fetch from Supabase
+  return getProducts(true);
 };
 
 export const createProduct = async (product: any) => {

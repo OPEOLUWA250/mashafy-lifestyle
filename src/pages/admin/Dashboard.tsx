@@ -31,11 +31,13 @@ export const AdminDashboard: React.FC = () => {
   // Enable session timeout tracking
   useSessionTimeout();
 
+  // Initial load - FORCE REFRESH to ensure fresh data from Supabase
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
         setError(null);
-        const { data: productsData, error: fetchError } = await getProducts();
+        console.log("📊 Admin Dashboard: Loading products with FORCE REFRESH");
+        const { data: productsData, error: fetchError } = await getProducts(true); // Force refresh!
 
         if (fetchError) {
           console.error("Fetch error:", fetchError);
@@ -49,6 +51,7 @@ export const AdminDashboard: React.FC = () => {
         }
 
         if (productsData && Array.isArray(productsData)) {
+          console.log("✅ Loaded", productsData.length, "products");
           setProducts(productsData as ProductData[]);
         } else {
           setProducts([]);

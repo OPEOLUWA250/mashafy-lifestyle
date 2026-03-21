@@ -24,8 +24,10 @@ export const AdminProducts: React.FC = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const { data } = await getProducts();
+        console.log("📖 Products Page: Loading with FORCE REFRESH");
+        const { data } = await getProducts(true); // Force refresh!
         if (data && Array.isArray(data)) {
+          console.log("✅ Loaded", data.length, "products");
           setProducts(data as Product[]);
         }
       } catch (error) {
@@ -85,13 +87,15 @@ export const AdminProducts: React.FC = () => {
               </h1>
               <p className="text-gray-600 text-sm">Manage all your store products</p>
             </div>
-            <Link
-              to="/admin/products/new"
-              className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-3 bg-gradient-to-r from-primary-600 to-primary-700 text-white font-semibold rounded-xl hover:shadow-lg transition-all duration-300 shadow-md text-sm hover:scale-105 transform"
-            >
-              <Plus className="w-5 h-5 mr-2" />
-              Add Product
-            </Link>
+            <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+              <Link
+                to="/admin/products/new"
+                className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-3 bg-gradient-to-r from-primary-600 to-primary-700 text-white font-semibold rounded-xl hover:shadow-lg transition-all duration-300 shadow-md text-sm hover:scale-105 transform"
+              >
+                <Plus className="w-5 h-5 mr-2" />
+                Add Product
+              </Link>
+            </div>
           </div>
 
           {/* Search Bar */}
