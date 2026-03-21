@@ -80,7 +80,7 @@ export const AdminDashboard: React.FC = () => {
           const errorMessage =
             typeof error === "string"
               ? error
-              : error?.message || "Failed to delete product";
+              : String(error);
           alert(errorMessage);
           console.error("Delete error:", error);
         } else {

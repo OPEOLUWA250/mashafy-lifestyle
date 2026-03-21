@@ -34,8 +34,11 @@ export const EditProduct: React.FC = () => {
 
       try {
         const { data } = await getProducts();
+        console.log("📦 Fetched products:", data);
+        console.log("🔍 Looking for product ID:", id);
         if (data && Array.isArray(data)) {
           const product = data.find((p: any) => p.id === id);
+          console.log("✅ Found product:", product);
           if (product) {
             setFormData({
               name: product.name,
@@ -46,11 +49,12 @@ export const EditProduct: React.FC = () => {
               stock: product.stock,
             });
           } else {
+            console.error("❌ Product not found in fetched data");
             setError("Product not found");
           }
         }
       } catch (err) {
-        console.error("Error fetching product:", err);
+        console.error("❌ Error fetching product:", err);
         setError("Failed to load product");
       } finally {
         setFetching(false);
@@ -89,6 +93,9 @@ export const EditProduct: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("📝 Form submission started");
+    console.log("📋 Product ID:", id);
+    console.log("📋 Form data:", formData);
 
     if (
       !formData.name ||
@@ -96,6 +103,12 @@ export const EditProduct: React.FC = () => {
       !formData.image_url ||
       !formData.description
     ) {
+      const missingFields = [];
+      if (!formData.name) missingFields.push("name");
+      if (!formData.price) missingFields.push("price");
+      if (!formData.image_url) missingFields.push("image_url");
+      if (!formData.description) missingFields.push("description");
+      console.error("❌ Missing required fields:", missingFields);
       setError("Please fill in all required fields");
       return;
     }
@@ -109,28 +122,34 @@ export const EditProduct: React.FC = () => {
     setError("");
 
     try {
+      console.log("🔄 Calling updateProduct with:", { id, updates: formData });
       const { error: submitError } = await updateProduct(id || "", {
         name: formData.name,
+        description: formData.description,
         price: formData.price,
         category: formData.category,
         image_url: formData.image_url,
         stock: formData.stock,
       });
 
+      console.log("📡 Update response error:", submitError);
+
       if (submitError) {
         const errorMessage =
           typeof submitError === "string"
             ? submitError
-            : submitError?.message || "Failed to update product";
-        console.error("Update error:", submitError);
+            : String(submitError);
+        console.error("❌ Update error:", submitError);
         setError(errorMessage);
         return;
       }
 
+      console.log("✅ Update successful, redirecting to products");
       // Success - clear cache and navigate back to products
       clearProductCache();
       navigate("/admin/products");
     } catch (err: any) {
+      console.error("❌ Try-catch error:", err);
       setError(err.message || "An error occurred");
     } finally {
       setLoading(false);

@@ -11,12 +11,6 @@ export const AdminLogin: React.FC = () => {
   const navigate = useNavigate();
   const login = useAuthStore((state) => state.login);
 
-  const isLocked = Boolean(
-    useAuthStore(
-      (state) => state.lockoutTime && Date.now() < state.lockoutTime!,
-    ),
-  );
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -100,7 +94,7 @@ export const AdminLogin: React.FC = () => {
 
           <button
             type="submit"
-            disabled={loading || isLocked}
+            disabled={loading}
             className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             {loading ? "Logging in..." : "Login"}

@@ -5,6 +5,7 @@ import { ProductCard } from "../../components/store/ProductCard";
 import type { Product } from "../../types";
 import { Filter, X } from "lucide-react";
 import { getProducts } from "../../utils/supabase";
+import { useProductsSync } from "../../hooks/useProductsSync";
 
 export const Shop: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -15,35 +16,38 @@ export const Shop: React.FC = () => {
   );
   const [showFilters, setShowFilters] = useState(false);
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      setLoading(true);
-      try {
-        const { data } = await getProducts();
-        if (data && Array.isArray(data) && data.length > 0) {
-          const mapped = data.map((p: any) => ({
-            id: p.id,
-            name: p.name,
-            description: p.name,
-            price: p.price,
-            category: p.category,
-            image: p.image_url,
-            sizes: ["XS", "S", "M", "L", "XL", "XXL"],
-            colors: ["#000000", "#FFFFFF"],
-            inStock: (p.stock || 0) > 0,
-            featured: false,
-          }));
-          setProducts(mapped);
-        }
-      } catch (error) {
-        console.error("Error fetching products:", error);
-      } finally {
-        setLoading(false);
+  const fetchProducts = async () => {
+    setLoading(true);
+    try {
+      const { data } = await getProducts();
+      if (data && Array.isArray(data) && data.length > 0) {
+        const mapped = data.map((p: any) => ({
+          id: p.id,
+          name: p.name,
+          description: p.name,
+          price: p.price,
+          category: p.category,
+          image: p.image_url,
+          sizes: ["XS", "S", "M", "L", "XL", "XXL"],
+          colors: ["#000000", "#FFFFFF"],
+          inStock: (p.stock || 0) > 0,
+          featured: false,
+        }));
+        setProducts(mapped);
       }
-    };
+    } catch (error) {
+      console.error("Error fetching products:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchProducts();
   }, []);
+
+  // Listen for product changes from admin
+  useProductsSync(fetchProducts);
 
   const filteredAndSortedProducts = useMemo(() => {
     let items = [...products];

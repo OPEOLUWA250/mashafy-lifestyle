@@ -1,9 +1,23 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import {
+  verifyPassword,
+  checkRateLimit,
+  recordFailedAttempt,
+  resetRateLimit,
+  logAdminAction,
+  generateSessionToken,
+  signSessionToken,
+  getStoredCredentials,
+  storeCredentialsSecurely,
+  initializeSecureCredentials,
+} from "../utils/secureAuth";
 
 interface AuthState {
   isAuthenticated: boolean;
+  sessionToken: string | null;
   adminUser: { email: string; loginTime: number } | null;
+  lastActivity: number;
   login: (
     email: string,
     password: string,
@@ -11,125 +25,139 @@ interface AuthState {
   logout: () => void;
   validateSession: () => { isValid: boolean; reason?: string };
   updateActivity: () => void;
-  failedAttempts: number;
-  lockoutTime: number | null;
 }
 
 // Security constants
 const MAX_FAILED_ATTEMPTS = 5;
-const LOCKOUT_DURATION = 15 * 60 * 1000; // 15 minutes
 const SESSION_TIMEOUT = 30 * 60 * 1000; // 30 minutes of inactivity
 
-// Admin credentials
-const ADMIN_CREDENTIALS = {
-  email: import.meta.env.VITE_ADMIN_EMAIL || "admin@mashafy.com",
-  password: import.meta.env.VITE_ADMIN_PASSWORD || "password123",
+// Initialize secure credentials on first run
+const initializeCredentials = async () => {
+  const existing = getStoredCredentials();
+  if (!existing) {
+    const creds = await initializeSecureCredentials();
+    storeCredentialsSecurely(creds);
+    console.log("🔐 Secure credentials initialized");
+  }
 };
 
-// In-memory tracking (persists during session)
-let failedAttemptCount = 0;
-let lastActivity = Date.now();
+initializeCredentials();
 
 export const useAuthStore = create<AuthState>()(
   persist(
     (set, get) => ({
       isAuthenticated: false,
+      sessionToken: null,
       adminUser: null,
-      failedAttempts: 0,
-      lockoutTime: null,
+      lastActivity: 0,
 
       login: async (email: string, password: string) => {
         return new Promise((resolve) => {
-          setTimeout(() => {
-            const now = Date.now();
+          setTimeout(async () => {
+            try {
+              const now = Date.now();
 
-            // Check if account is locked
-            if (get().lockoutTime && now < get().lockoutTime!) {
-              const remainingMinutes = Math.ceil(
-                (get().lockoutTime! - now) / 1000 / 60,
-              );
-              resolve({
-                success: false,
-                error: `Too many failed attempts. Try again in ${remainingMinutes} minute${remainingMinutes !== 1 ? "s" : ""}.`,
-              });
-              return;
-            }
+              // Check rate limiting from localStorage
+              const rateCheck = checkRateLimit(MAX_FAILED_ATTEMPTS);
+              if (!rateCheck.allowed) {
+                logAdminAction("login_attempt", { email }, "failure");
+                resolve({
+                  success: false,
+                  error: rateCheck.reason || "Too many attempts",
+                });
+                return;
+              }
 
-            // Reset failed attempts if lockout expired
-            if (get().lockoutTime && now >= get().lockoutTime!) {
-              failedAttemptCount = 0;
-              set({ failedAttempts: 0, lockoutTime: null });
-            }
+              // Get stored credentials (hashed)
+              const stored = getStoredCredentials();
+              if (!stored) {
+                logAdminAction("login_attempt", { email }, "failure");
+                resolve({
+                  success: false,
+                  error: "Authentication system not initialized",
+                });
+                return;
+              }
 
-            // Validate credentials
-            if (
-              email === ADMIN_CREDENTIALS.email &&
-              password === ADMIN_CREDENTIALS.password
-            ) {
-              // Reset failed attempts on successful login
-              failedAttemptCount = 0;
-              lastActivity = now;
+              // Verify email and password
+              if (email !== stored.email) {
+                recordFailedAttempt(MAX_FAILED_ATTEMPTS);
+                logAdminAction("login_attempt", { email, reason: "invalid_email" }, "failure");
+                resolve({
+                  success: false,
+                  error: `Invalid credentials. (${(rateCheck.remainingAttempts || 0) - 1} attempts remaining)`,
+                });
+                return;
+              }
+
+              // Verify password hash
+              const passwordValid = await verifyPassword(password, stored.salt, stored.passwordHash);
+              if (!passwordValid) {
+                recordFailedAttempt(MAX_FAILED_ATTEMPTS);
+                logAdminAction("login_attempt", { email, reason: "invalid_password" }, "failure");
+                resolve({
+                  success: false,
+                  error: `Invalid credentials. (${(rateCheck.remainingAttempts || 0) - 1} attempts remaining)`,
+                });
+                return;
+              }
+
+              // Successful login - generate session token
+              resetRateLimit();
+              const token = generateSessionToken();
+              const signedToken = await signSessionToken(token, stored.salt);
+
+              logAdminAction("login_success", { email }, "success");
 
               set({
                 isAuthenticated: true,
+                sessionToken: signedToken,
                 adminUser: {
                   email,
                   loginTime: now,
                 },
-                failedAttempts: 0,
-                lockoutTime: null,
+                lastActivity: now,
               });
+
               resolve({ success: true });
-            } else {
-              // Increment failed attempts
-              failedAttemptCount++;
-
-              const remainingAttempts =
-                MAX_FAILED_ATTEMPTS - failedAttemptCount;
-
-              // Lock account if max attempts exceeded
-              if (failedAttemptCount >= MAX_FAILED_ATTEMPTS) {
-                const lockoutEndTime = now + LOCKOUT_DURATION;
-                set({
-                  failedAttempts: failedAttemptCount,
-                  lockoutTime: lockoutEndTime,
-                });
-                resolve({
-                  success: false,
-                  error: `Account locked due to too many failed attempts. Try again later.`,
-                });
-              } else {
-                set({ failedAttempts: failedAttemptCount });
-                resolve({
-                  success: false,
-                  error: `Invalid email or password. (${remainingAttempts} attempt${remainingAttempts !== 1 ? "s" : ""} remaining)`,
-                });
-              }
+            } catch (error) {
+              console.error("Login error:", error);
+              logAdminAction("login_attempt", { email, error: String(error) }, "failure");
+              resolve({
+                success: false,
+                error: "An error occurred during login",
+              });
             }
           }, 500);
         });
       },
 
       logout: () => {
+        const adminUser = get().adminUser;
+        if (adminUser) {
+          logAdminAction("logout", { email: adminUser.email }, "success");
+        }
         set({
           isAuthenticated: false,
+          sessionToken: null,
           adminUser: null,
+          lastActivity: 0,
         });
-        lastActivity = 0;
       },
 
       validateSession: () => {
         const state = get();
         const now = Date.now();
 
-        if (!state.isAuthenticated || !state.adminUser) {
+        if (!state.isAuthenticated || !state.adminUser || !state.sessionToken) {
           return { isValid: false, reason: "Not authenticated" };
         }
 
         // Check session timeout
-        const timeSinceLastActivity = now - lastActivity;
+        const timeSinceLastActivity = now - state.lastActivity;
         if (timeSinceLastActivity > SESSION_TIMEOUT) {
-          set({ isAuthenticated: false, adminUser: null });
+          logAdminAction("session_timeout", { email: state.adminUser.email }, "success");
+          set({ isAuthenticated: false, sessionToken: null, adminUser: null, lastActivity: 0 });
           return {
             isValid: false,
             reason: "Session expired due to inactivity",
@@ -140,16 +168,16 @@ export const useAuthStore = create<AuthState>()(
       },
 
       updateActivity: () => {
-        lastActivity = Date.now();
+        set({ lastActivity: Date.now() });
       },
     }),
     {
       name: "admin-auth-storage",
       partialize: (state) => ({
         isAuthenticated: state.isAuthenticated,
+        sessionToken: state.sessionToken,
         adminUser: state.adminUser,
-        failedAttempts: state.failedAttempts,
-        lockoutTime: state.lockoutTime,
+        lastActivity: state.lastActivity,
       }),
     },
   ),

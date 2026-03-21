@@ -68,6 +68,7 @@ export const AddProduct: React.FC = () => {
     try {
       const { error: submitError } = await createProduct({
         name: formData.name,
+        description: formData.description,
         price: formData.price,
         category: formData.category,
         image_url: formData.image_url,
@@ -78,7 +79,7 @@ export const AddProduct: React.FC = () => {
         const errorMessage =
           typeof submitError === "string"
             ? submitError
-            : submitError?.message || "Failed to create product";
+            : String(submitError);
         console.error("Create error:", submitError);
         setError(errorMessage);
         return;
