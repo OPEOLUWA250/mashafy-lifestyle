@@ -12,7 +12,7 @@ export const supabase = isSupabaseConfigured
 
 let cachedProducts: any[] | null = null;
 let cacheTtl = 0;
-const CACHE_DURATION = 60 * 60 * 1000;
+const CACHE_DURATION = 5 * 60 * 1000; // Reduced from 1 hour to 5 minutes for better sync
 
 const loadCacheFromStorage = () => {
   try {

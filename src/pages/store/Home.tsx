@@ -12,10 +12,10 @@ export const Home: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchProducts = async () => {
+  const fetchProducts = async (forceRefresh = false) => {
     setLoading(true);
     try {
-      const { data } = await getProducts();
+      const { data } = await getProducts(forceRefresh);
       if (data && Array.isArray(data) && data.length > 0) {
         const mapped = data.map((p: any) => ({
           id: p.id,
@@ -39,11 +39,13 @@ export const Home: React.FC = () => {
   };
 
   useEffect(() => {
-    fetchProducts();
+    // Force refresh on page load to ensure fresh data
+    console.log("🏠 Home page: Force refreshing products");
+    fetchProducts(true);
   }, []);
 
   // Listen for product changes from admin
-  useProductsSync(fetchProducts);
+  useProductsSync(() => fetchProducts(true)); // Pass force refresh to sync handler
 
   return (
     <div className="min-h-screen bg-white">

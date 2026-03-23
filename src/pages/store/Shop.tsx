@@ -16,10 +16,10 @@ export const Shop: React.FC = () => {
   );
   const [showFilters, setShowFilters] = useState(false);
 
-  const fetchProducts = async () => {
+  const fetchProducts = async (forceRefresh = false) => {
     setLoading(true);
     try {
-      const { data } = await getProducts();
+      const { data } = await getProducts(forceRefresh);
       if (data && Array.isArray(data) && data.length > 0) {
         const mapped = data.map((p: any) => ({
           id: p.id,
@@ -43,11 +43,13 @@ export const Shop: React.FC = () => {
   };
 
   useEffect(() => {
-    fetchProducts();
+    // Force refresh on page load to ensure fresh data
+    console.log("🛍️  Shop page: Force refreshing products");
+    fetchProducts(true);
   }, []);
 
   // Listen for product changes from admin
-  useProductsSync(fetchProducts);
+  useProductsSync(() => fetchProducts(true)); // Pass force refresh to sync handler
 
   const filteredAndSortedProducts = useMemo(() => {
     let items = [...products];

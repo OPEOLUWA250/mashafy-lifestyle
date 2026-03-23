@@ -26,13 +26,18 @@ import { FloatingButtons } from "./components/FloatingButtons";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { ScrollToTop } from "./components/ScrollToTop";
 import { getProducts } from "./utils/supabase";
+import { useAutoRefresh } from "./hooks/useAutoRefresh";
 
 function App() {
+  // Enable automatic product cache refresh on visibility/focus changes
+  useAutoRefresh();
+
   useEffect(() => {
-    // Preload products on app startup
+    // Preload products on app startup with FORCE REFRESH
     const preloadProducts = async () => {
       try {
-        await getProducts();
+        console.log("🚀 App startup: Force refreshing products from Supabase");
+        await getProducts(true); // Force fresh fetch
       } catch (err) {
         console.error("Failed to preload products:", err);
       }
