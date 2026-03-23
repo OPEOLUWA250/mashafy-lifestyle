@@ -161,8 +161,8 @@ export const getProducts = async (forceRefresh = false) => {
       return { data: filtered, error: null };
     }
 
-    // Use cache ONLY if valid AND not forced to refresh
-    if (!forceRefresh && cachedProducts && Date.now() < cacheTtl) {
+    // Use cache ONLY if valid AND not forced to refresh AND cache has products
+    if (!forceRefresh && cachedProducts !== null && cachedProducts.length > 0 && Date.now() < cacheTtl) {
       console.log("  ✅ Using VALID CACHE:", cachedProducts.length, "products from Supabase");
       // NEVER filter Supabase products by deletion tracking
       const combined = [...cachedProducts, ...localPendingProducts.filter(p => !deletedLocalIds.includes(p.id))];
