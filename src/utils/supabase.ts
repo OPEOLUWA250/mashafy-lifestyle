@@ -10,6 +10,62 @@ export const supabase = isSupabaseConfigured
   ? createClient(supabaseUrl, supabaseAnonKey)
   : null;
 
+// CIRCUIT BREAKER: Prevent infinite retry loops on network failures
+let failureCount = 0;
+let lastFailureTime = 0;
+const MAX_FAILURES = 5;
+const CIRCUIT_BREAKER_DELAY = 30000; // Wait 30s before retrying after failures
+
+const isCircuitBreakerOpen = (): boolean => {
+  if (failureCount >= MAX_FAILURES) {
+    const timeSinceLastFailure = Date.now() - lastFailureTime;
+    if (timeSinceLastFailure < CIRCUIT_BREAKER_DELAY) {
+      console.warn(`🔴 CIRCUIT BREAKER: Too many failures (${failureCount}/${MAX_FAILURES}). Waiting before retry...`);
+      return true;
+    } else {
+      failureCount = 0; // Reset circuit breaker
+    }
+  }
+  return false;
+};
+
+const recordFailure = () => {
+  failureCount++;
+  lastFailureTime = Date.now();
+  console.error(`❌ Network failure #${failureCount}/${MAX_FAILURES}. Will pause retries after ${MAX_FAILURES}.`);
+};
+
+const recordSuccess = () => {
+  if (failureCount > 0) {
+    console.log(`✅ Network restored. Resetting failure counter.`);
+  }
+  failureCount = 0;
+};
+
+// DIAGNOSTIC: Check if Supabase is properly configured
+export const checkSupabaseConfig = () => {
+  const config = {
+    url: supabaseUrl ? "✅ Present" : "❌ MISSING",
+    key: supabaseAnonKey ? "✅ Present" : "❌ MISSING",
+    clientCreated: supabase ? "✅ Yes" : "❌ No",
+    environment: import.meta.env.MODE,
+  };
+  
+  console.log("🔍 Supabase Configuration Check:", config);
+  
+  if (!isSupabaseConfigured) {
+    console.error(
+      "⚠️  CONFIGURATION ERROR: Supabase is not properly configured.\n" +
+      "In production (Vercel), you must set these environment variables:\n" +
+      "1. VITE_SUPABASE_URL\n" +
+      "2. VITE_SUPABASE_ANON_KEY\n\n" +
+      "Go to Vercel Project Settings > Environment Variables and add them."
+    );
+  }
+  
+  return config;
+};
+
 let cachedProducts: any[] | null = null;
 let cacheTtl = 0;
 const CACHE_DURATION = 5 * 60 * 1000; // Reduced from 1 hour to 5 minutes for better sync
@@ -146,27 +202,29 @@ const saveLocalProducts = (products: any[]) => {
 export const getProducts = async (forceRefresh = false) => {
   try {
     const localPendingProducts = getLocalProducts();
-    // ONLY use deletedIds for local pending products, NOT for Supabase products
     const deletedLocalIds = getDeletedIds().filter(id => id.startsWith("local-pending-"));
     
-    console.log("🔍 getProducts called:", { forceRefresh });
-    console.log("  💾 Local pending products from storage:", localPendingProducts.length, "items");
-    console.log("  📦 Deleted LOCAL product IDs:", deletedLocalIds);
+    console.log("🔍 getProducts called:", { forceRefresh, circuitBreakerOpen: isCircuitBreakerOpen() });
 
-    // If Supabase is NOT configured, return ONLY local products (true offline mode)
+    // If Supabase is NOT configured, return local products
     if (!isSupabaseConfigured || !supabase) {
-      console.log("  ⚠️  OFFLINE MODE: Supabase not configured, returning ONLY local products");
+      console.warn("⚠️  CONFIG ERROR: Supabase not configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in production environment variables.");
       const filtered = localPendingProducts.filter(p => !deletedLocalIds.includes(p.id));
-      console.log("  ✅ Offline: returning", filtered.length, "products");
       return { data: filtered, error: null };
     }
 
-    // Use cache ONLY if valid AND not forced to refresh AND cache has products
+    // Check circuit breaker BEFORE attempting fetch
+    if (!forceRefresh && isCircuitBreakerOpen()) {
+      console.log("  🔴 Circuit breaker OPEN: returning cached data only");
+      const fallbackData = cachedProducts || [];
+      const combined = [...fallbackData, ...localPendingProducts.filter(p => !deletedLocalIds.includes(p.id))];
+      return { data: combined, error: null };
+    }
+
+    // Use cache ONLY if valid AND not forced to refresh AND cache exists
     if (!forceRefresh && cachedProducts !== null && cachedProducts.length > 0 && Date.now() < cacheTtl) {
       console.log("  ✅ Using VALID CACHE:", cachedProducts.length, "products from Supabase");
-      // NEVER filter Supabase products by deletion tracking
       const combined = [...cachedProducts, ...localPendingProducts.filter(p => !deletedLocalIds.includes(p.id))];
-      console.log("  ✅ Returning", combined.length, "total products (Supabase + pending)");
       return { data: combined, error: null };
     }
 
@@ -184,38 +242,45 @@ export const getProducts = async (forceRefresh = false) => {
       .select("id, name, description, price, category, stock, image_url, created_at")
       .order("created_at", { ascending: false });
 
-    console.log("  📡 Supabase response:", error ? "❌ ERROR" : "✅ OK", "fetched", data?.length || 0, "products");
-
     // If Supabase returns an error
     if (error) {
+      recordFailure();
       console.error("  ❌ Supabase fetch error:", error.message);
-      console.log("  ⚠️  FALLBACK: Using cached data + local pending products");
-      // Still return Supabase products if available, even if errored
-      const fallbackData = cachedProducts || [];
-      const combined = [...fallbackData, ...localPendingProducts.filter(p => !deletedLocalIds.includes(p.id))];
-      console.log("  ✅ Fallback: returning", combined.length, "products");
-      return { data: combined, error: null };
-    }
-
-    // Supabase returned empty
-    if (!data || data.length === 0) {
-      console.log("  ℹ️  Supabase returned no products");
+      
+      // Return cached data as fallback if available
+      if (cachedProducts && cachedProducts.length > 0) {
+        console.log("  ⚠️  FALLBACK: Using cached data");
+        const combined = [...cachedProducts, ...localPendingProducts.filter(p => !deletedLocalIds.includes(p.id))];
+        return { data: combined, error: null };
+      }
+      
+      // Final fallback: local products only
+      console.log("  ⚠️  FINAL FALLBACK: Using local products only");
       const filtered = localPendingProducts.filter(p => !deletedLocalIds.includes(p.id));
-      console.log("  ✅ Returning", filtered.length, "products (local pending)");
       return { data: filtered, error: null };
     }
 
-    // Success! Update cache and return
-    console.log("  ✅ Supabase fetch successful!");
+    // Success! Record success and update cache
+    recordSuccess();
+    console.log("  ✅ Supabase fetch successful! Got", data?.length || 0, "products");
+    
+    if (!data || data.length === 0) {
+      console.log("  ℹ️  Supabase returned no products");
+      const filtered = localPendingProducts.filter(p => !deletedLocalIds.includes(p.id));
+      return { data: filtered, error: null };
+    }
+
+    // Update cache
     cachedProducts = data;
     cacheTtl = Date.now() + CACHE_DURATION;
     saveCacheToStorage(data);
 
-    // NEVER filter Supabase products - they are source of truth
+    // Return combined products
     const combined = [...data, ...localPendingProducts.filter(p => !deletedLocalIds.includes(p.id))];
-    console.log("  ✅ Returning", combined.length, "total products (Supabase + pending)");
+    console.log("  ✅ Returning", combined.length, "total products (Supabase + local pending)");
     return { data: combined, error: null };
   } catch (error) {
+    recordFailure();
     console.error("  ❌ Unexpected error in getProducts:", error);
     const localPendingProducts = getLocalProducts();
     const deletedLocalIds = getDeletedIds().filter(id => id.startsWith("local-pending-"));

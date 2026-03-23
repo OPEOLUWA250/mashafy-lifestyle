@@ -25,7 +25,7 @@ import { AdminLogin } from "./pages/admin/Login";
 import { FloatingButtons } from "./components/FloatingButtons";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { ScrollToTop } from "./components/ScrollToTop";
-import { getProducts } from "./utils/supabase";
+import { getProducts, checkSupabaseConfig } from "./utils/supabase";
 import { useAutoRefresh } from "./hooks/useAutoRefresh";
 
 function App() {
@@ -33,6 +33,9 @@ function App() {
   useAutoRefresh();
 
   useEffect(() => {
+    // Diagnostic: Check Supabase configuration on startup
+    checkSupabaseConfig();
+    
     // Preload products on app startup with FORCE REFRESH
     const preloadProducts = async () => {
       try {
