@@ -37,7 +37,8 @@ export const AdminDashboard: React.FC = () => {
       try {
         setError(null);
         console.log("📊 Admin Dashboard: Loading products with FORCE REFRESH");
-        const { data: productsData, error: fetchError } = await getProducts(true); // Force refresh!
+        const { data: productsData, error: fetchError } =
+          await getProducts(true); // Force refresh!
 
         if (fetchError) {
           console.error("Fetch error:", fetchError);
@@ -81,9 +82,7 @@ export const AdminDashboard: React.FC = () => {
         const { error } = await deleteProduct(productId);
         if (error) {
           const errorMessage =
-            typeof error === "string"
-              ? error
-              : String(error);
+            typeof error === "string" ? error : String(error);
           alert(errorMessage);
           console.error("Delete error:", error);
         } else {
@@ -152,7 +151,9 @@ export const AdminDashboard: React.FC = () => {
               <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-2">
                 Admin Dashboard
               </h1>
-              <p className="text-gray-600 text-sm">Manage your Mashafy store products and inventory</p>
+              <p className="text-gray-600 text-sm">
+                Manage your Mashafy store products and inventory
+              </p>
             </div>
             <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
               <Link
@@ -178,7 +179,13 @@ export const AdminDashboard: React.FC = () => {
               <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
                 Products Library
               </h2>
-              <p className="text-gray-600 text-sm">Total: <span className="font-semibold text-primary-600">{products.length}</span> products</p>
+              <p className="text-gray-600 text-sm">
+                Total:{" "}
+                <span className="font-semibold text-primary-600">
+                  {products.length}
+                </span>{" "}
+                products
+              </p>
             </div>
 
             {/* Search Bar */}

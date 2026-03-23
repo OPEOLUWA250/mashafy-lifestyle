@@ -35,7 +35,7 @@ function App() {
   useEffect(() => {
     // Diagnostic: Check Supabase configuration on startup
     checkSupabaseConfig();
-    
+
     // Preload products on app startup with FORCE REFRESH
     const preloadProducts = async () => {
       try {

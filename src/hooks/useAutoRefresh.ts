@@ -31,12 +31,17 @@ export const useAutoRefresh = () => {
     };
 
     // Periodic background refresh every 2 minutes (even if user stays on page)
-    const periodicRefreshInterval = setInterval(() => {
-      if (!document.hidden) {
-        console.log("⏰ Periodic refresh (2 min interval) - clearing product cache");
-        clearProductCache();
-      }
-    }, 2 * 60 * 1000); // 2 minutes
+    const periodicRefreshInterval = setInterval(
+      () => {
+        if (!document.hidden) {
+          console.log(
+            "⏰ Periodic refresh (2 min interval) - clearing product cache",
+          );
+          clearProductCache();
+        }
+      },
+      2 * 60 * 1000,
+    ); // 2 minutes
 
     document.addEventListener("visibilitychange", handleVisibilityChange);
     window.addEventListener("online", handleOnline);
@@ -50,4 +55,3 @@ export const useAutoRefresh = () => {
     };
   }, []);
 };
-

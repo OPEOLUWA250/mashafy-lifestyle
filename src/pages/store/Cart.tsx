@@ -251,7 +251,7 @@ export const Cart: React.FC = () => {
                 {/* Phone Number */}
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Phone Number
+                    Phone Number (For Delivery)
                   </label>
                   <input
                     type="tel"
